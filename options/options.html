@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Forvo Lookup 设置</title>
+    <!-- 引入外部 CSS 样式文件，用于美化页面 -->
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <!-- 页面标题 -->
+    <h1>Forvo Lookup 设置</h1>
+    <!-- 标签：下拉框的说明文字 -->
+    <label for="langSelect">Forvo 页面语言：</label>
+    <!-- 语言选择下拉框，用户可选择 Forvo 页面使用的界面语言 -->
+    <select id="langSelect">
+      <!-- 常用语言选项 -->
+      <option value="de">Deutsch</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="it">Italiano</option>
+      <option value="ja">日本語</option>
+      <option value="nl">Nederlands</option>
+      <option value="pl">Polski</option>
+      <option value="pt">Português</option>
+      <option value="ru">Русский</option>
+      <option value="tr">Türkçe</option>
+      <option value="zh">汉语</option>
+      <!-- 其他语言选项 -->
+      <option value="ar">العربية</option>
+      <option value="bg">Български</option>
+      <option value="bs">Bosanski</option>
+      <option value="ca">Català</option>
+      <option value="cs">Čeština</option>
+      <option value="da">Dansk</option>
+      <option value="el">Ελληνικά</option>
+      <option value="eu">Euskara</option>
+      <option value="fa">پارسی</option>
+      <option value="fi">Suomi</option>
+      <option value="hak">客家语</option>
+      <option value="he">עברית</option>
+      <option value="hi">हिन्दी</option>
+      <option value="hr">Hrvatski</option>
+      <option value="hu">Magyar</option>
+      <option value="hy">Հայերեն</option>
+      <option value="ind">Bahasa Indonesia</option>
+      <option value="ko">한국어</option>
+      <option value="ku">Kurdî / كوردی</option>
+      <option value="lv">Latviešu</option>
+      <option value="no">Norsk bokmål</option>
+      <option value="pa">ਪੰਜਾਬੀ</option>
+      <option value="ro">Română</option>
+      <option value="sk">Slovenčina</option>
+      <option value="sr">Српски / Srpski</option>
+      <option value="sv">Svenska</option>
+      <option value="th">ไทย</option>
+      <option value="tt">Татар теле</option>
+      <option value="uk">Українська</option>
+      <option value="vi">Tiếng Việt</option>
+      <option value="yue">粵文</option>
+    </select>
+    <!-- 保存按钮，点击后将所选语言保存到插件设置 -->
+    <button id="save">保存</button>
+
+    <!-- 引入外部 JavaScript 文件，负责保存用户选择的语言设置 -->
+    <script src="options.js"></script>
+  </body>
+</html>
