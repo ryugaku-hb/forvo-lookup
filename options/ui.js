@@ -1,4 +1,8 @@
-// 根据语言代码更新页面文本
+/**
+ * 根据语言代码更新页面文本
+ *
+ * @param {string} lang
+ */
 function updateTextByLang(lang) {
   const texts = i18n[lang] || i18n[DEFAULT_LANG_CODE];
   document.getElementById("title").textContent = texts.title;

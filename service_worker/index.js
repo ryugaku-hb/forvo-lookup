@@ -1,22 +1,11 @@
 import { loadUserSettings, watchStorageChanges } from "./settings.js";
 import { createContextMenu, handleContextMenuClick } from "./contextMenu.js";
+import { extractLangCode } from "./lang.js";
 
 // 默认的 Forvo 搜索地址（中文）
 let currentBaseUrl;
 
-/**
- * 提取语言代码
- *
- * @example
- * extractLangCode("https://ja.forvo.com/search/") // "ja"
- *
- * @param {string} url
- * @returns {string}
- */
-function extractLangCode(url) {
-  const match = url.match(/^https:\/\/(.*?)\.forvo\.com/);
-  return match ? match[1] : "zh"; // 默认中文
-}
+
 
 /**
  * 执行初始化流程

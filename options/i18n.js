@@ -261,4 +261,5 @@ window.i18n = {
   },
 };
 
+// 默认语言代码
 window.DEFAULT_LANG_CODE = "zh";

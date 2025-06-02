@@ -7,10 +7,29 @@
  * @param {string} langCode
  * @returns {string}
  */
-const langPrefix = (langCode) => `https://${langCode}.forvo.com/search/`;
+function langPrefix(langCode) {
+  return langCode === "en"
+    ? "https://forvo.com/search/" // 英文没有前缀
+    : `https://${langCode}.forvo.com/search/`;
+}
 
-// 默认搜索地址（https://zh.forvo.com/search/）
+// 默认搜索地址 "https://zh.forvo.com/search/"
 const DEFAULT_SEARCH_URL = langPrefix(window.DEFAULT_LANG_CODE);
+
+/**
+ * 提取语言代码
+ *
+ * 从 forvo.com 或 xx.forvo.com 形式中识别。
+ *
+ * @param {string} url
+ * @returns  }
+ */
+function extractLangCode(url) {
+  if (url === "https://forvo.com/search/") return "en"; // 特殊处理英文
+
+  const match = url.match(/^https:\/\/(.*?)\.forvo\.com/);
+  return match ? match[1] : window.DEFAULT_LANG_CODE;
+}
 
 // 等待页面 DOM 加载完成后执行初始化逻辑
 document.addEventListener("DOMContentLoaded", () => {
@@ -20,16 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.storage.local.get(["pageLang"]).then((result) => {
     // 如果未设置，则使用默认的中文（zh）搜索地址
     const currentUrl = result.pageLang || DEFAULT_SEARCH_URL;
-
-    // 使用正则表达式从 URL 中提取语言代码。 例如 "https://zh.forvo.com" => "zh"
-    const currentLang =
-      currentUrl.match(/^https:\/\/(.*?)\.forvo\.com/)?.[1] ||
-      window.DEFAULT_LANG_CODE;
+    const currentLangCode = extractLangCode(currentUrl);
 
     // 将提取到的语言代码设为下拉框的当前选中项
-    langSelectEl.value = currentLang;
-
-    window.updateTextByLang(currentLang);
+    langSelectEl.value = currentLangCode;
+    window.updateTextByLang(currentLangCode);
   });
 
   // 点击“保存”按钮后，保存用户选择的新语言设置
