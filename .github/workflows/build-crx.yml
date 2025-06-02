@@ -34,12 +34,4 @@ jobs: # jobs: 包含所有任务（job）定义，每个 job 包括执行器与�
         # 📦 GitHub Action for creating GitHub Releases
         uses: softprops/action-gh-release@v2
         with: # with: 给 uses 的 Action 传参
-          # 参数 tag_name: String
-          # Name of a tag. defaults to github.ref_name
-          tag_name: ${{ github.ref_name }}
-          # 参数 files: String
-          # Newline-delimited globs of paths to assets to upload for release
           files: forvo-lookup-${{ github.ref_name }}.zip
-        env: # env: 设置环境变量，如访问权限
-          # GITHUB_TOKEN: GitHub 自动提供的令牌，具有发布权限
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
