@@ -19,17 +19,15 @@ jobs: # jobs: 包含所有任务（job）定义，每个 job 包括执行器与�
         # About: Action for checking out a repo
         uses: actions/checkout@v4 # uses: 与 run 二选一，使用一个现成的 GitHub Action
 
+      - name: Install zip · 安装 zip 工具
+        run: sudo apt-get update && sudo apt-get install -y zip
+
       - name: Zip extension folder · 打包扩展目录为 zip 文件
         run: | # run: 与 uses 二选一，执行 shell 命令
           VERSION=${{ github.ref_name }} 
           ZIP_NAME="forvo-lookup-${VERSION}.zip"
-          echo "Creating zip: $ZIP_NAME (version: $VERSION)"
-          zip -r "$ZIP_NAME" . \
-            -x ".github/*" \ 
-            ".git/*" \
-            ".gitignore"\
-            "*.zip" \
-            "*.md"
+          echo "Creating zip: ${ZIP_NAME} (version: ${VERSION})"
+          zip -r "$ZIP_NAME" . -x ".github/*" ".git/*" ".gitignore" "*.zip"  "*.md" "LICENSE"
 
       - name: Upload ZIP to GitHub Release · 上传 zip 到 GitHub Release 页面
         # https://github.com/softprops/action-gh-release
