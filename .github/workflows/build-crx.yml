@@ -1,0 +1,106 @@
+# GitHub Actions 工作流名称，会显示在 Actions 页面上
+name: Build and Release CRX
+
+# name: string
+# 顶层
+# 工作流名称，显示在 GitHub Actions 页面
+
+# on: {object | string | array}
+# 顶层，必填
+# 指定触发 workflow 的事件（如 push, pull_request, workflow_dispatch）
+
+# 工作流的触发条件：当代码被 push 且带有 Git 标签（如 v1.0.0）时触发
+on:
+  # `push` 表示“当有人 push 代码到 GitHub”时触发
+  push:
+    # `tags` 进一步限定为“只有 push 标签”才触发
+    tags:
+      # 只匹配以 "v" 开头的标签，比如 v1.0、v2.3.4
+      - "v*"
+
+# jobs: object
+# 顶层，必填
+# 包含所有任务（job）定义，每个 job 包括执行器与步骤
+
+# job-id: string
+# job 层，必填
+# 任务唯一标识，如 build 或 test，可自定义
+
+# runs-on: string
+# job 层，必填
+# 指定运行环境（如 ubuntu-latest）
+
+jobs:
+  # 本 job 的 ID，你可以用其他名字替代，比如 package-extension
+  build:
+    # GitHub 提供的云端 Linux 环境，默认最新 Ubuntu
+    runs-on: ubuntu-latest
+
+    # steps: array
+    # job 层，必填
+    # 定义执行步骤列表（每个是一个 step）
+
+    steps: # `steps` 每个任务中的具体步骤
+      - name: Checkout code
+        # 拉取当前仓库的代码，必须的第一步
+        # https://github.com/actions/checkout
+        # About: Action for checking out a repo
+        uses: actions/checkout@v4
+
+      # name: string
+      # step 层
+      # 步骤名称（建议填写，便于日志查看）
+
+      # uses: string
+      # step 层，与 run 二选一
+      # 使用一个现成的 GitHub Action
+
+      # with: object
+      # step 层
+      # 给 uses 的 Action 传参
+
+      - name: Setup Node.js
+        # 用于运行 crx3 工具的 Node 环境
+        # https://github.com/actions/setup-node
+        # About: Set up your GitHub Actions workflow with a specific version of node.js
+        uses: actions/setup-node@v4
+        with:
+          # 参数 node-version: 指定 Node.js 版本
+          node-version: "23.11.0"
+
+      # run: string
+      # step 层，与 uses 二选一
+      # 执行 shell 命令
+
+      - name: Install crx3 CLI
+        # 安装 crx3（支持 Manifest V3 的 .crx 打包工具）
+        # 安装为全局命令，可以执行 crx3 pack ...
+        run: npm install -g crx3
+
+      - name: Write private key file
+        # 把保存在 GitHub Secrets 里的私钥内容写入到本地文件 mykey.pem
+        # secrets.CRX_PRIVATE_KEY 引用你在仓库 Settings → Secrets 中保存的变量
+        run: echo "${{ secrets.CRX_PRIVATE_KEY }}" > mykey.pem
+
+      - name: Build CRX package
+        # crx3 pack ./: 打包当前目录为 .crx 扩展
+        # --key: 指定使用哪个私钥文件进行签名
+        # --out: 输出的文件名
+        run: crx3 pack ./ --key mykey.pem --out forvo-lookup.crx
+
+      - name: Create Release and Upload CRX
+        # https://github.com/softprops/action-gh-release
+        # 📦 GitHub Action for creating GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          # 参数 tag_name: String
+          # Name of a tag. defaults to github.ref_name
+          # 标签名称，默认使用 github.ref_name（即当前 Git 标签）
+          tag_name: ${{ github.ref_name }}
+          # 参数 files: String
+          # Newline-delimited globs of paths to assets to upload for release
+          # 上传的文件路径，支持通配符和多行列出多个文件
+          files: ./forvo-lookup.crx
+        env: # `env` 设置环境变量，如访问权限
+          # GITHUB_TOKEN: GitHub 自动提供的令牌，具有发布权限
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
