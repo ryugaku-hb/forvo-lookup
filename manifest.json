@@ -1,7 +1,7 @@
 {
   "name": "Forvo 搜索",
   "description": "通过右键菜单快速使用 Forvo 搜索所选文本，方便快捷地发音查询。",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "background": {
     "service_worker": "service_worker/index.js",

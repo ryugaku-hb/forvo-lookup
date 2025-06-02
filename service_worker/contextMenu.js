@@ -1,21 +1,67 @@
 // 默认菜单 ID，可供外部引用
 export const CONTEXT_MENU_ID = "forvo-lookup";
 
+const MENU_TITLES = {
+  de: 'Suche "%s" mit Forvo',
+  en: 'Search "%s" with Forvo',
+  es: 'Buscar "%s" con Forvo',
+  fr: 'Rechercher "%s" avec Forvo',
+  it: 'Cerca "%s" con Forvo',
+  ja: 'Forvo で "%s" を検索',
+  nl: 'Zoek "%s" met Forvo',
+  pl: 'Szukaj "%s" w Forvo',
+  pt: 'Pesquisar "%s" no Forvo',
+  ru: 'Искать "%s" на Forvo',
+  tr: '"%s" için Forvo\'da Ara',
+  zh: '使用 Forvo 搜索 "%s"',
+  ar: 'ابحث عن "%s" مع فورفو',
+  bg: 'Търсене на "%s" с Forvo',
+  bs: 'Pretraži "%s" sa Forvo',
+  ca: 'Cerca "%s" amb Forvo',
+  cs: 'Vyhledat "%s" pomocí Forvo',
+  da: 'Søg efter "%s" med Forvo',
+  el: 'Αναζήτηση "%s" με Forvo',
+  eu: 'Bilatu "%s" Forvorekin',
+  fa: 'جستجوی "%s" با Forvo',
+  fi: 'Etsi "%s" Forvolla',
+  hak: '用 Forvo 搜索 "%s"',
+  he: 'חפש "%s" עם Forvo',
+  hi: 'Forvo पर "%s" खोजें',
+  hr: 'Pretraži "%s" s Forvo',
+  hu: 'Keresés "%s" a Forvo-val',
+  hy: 'Որոնել "%s" Forvo-ով',
+  ind: 'Cari "%s" dengan Forvo',
+  ko: 'Forvo에서 "%s" 검색',
+  ku: 'Lêgerîn "%s" bi Forvo',
+  lv: 'Meklēt "%s" ar Forvo',
+  no: 'Søk etter "%s" med Forvo',
+  pa: 'Forvo ਨਾਲ "%s" ਖੋਜੋ',
+  ro: 'Caută "%s" cu Forvo',
+  sk: 'Vyhľadať "%s" cez Forvo',
+  sr: 'Претрага "%s" помоћу Форво-а',
+  sv: 'Sök efter "%s" med Forvo',
+  th: 'ค้นหา "%s" ด้วย Forvo',
+  tt: '"%s" өчен Forvo-да эзләү',
+  uk: 'Пошук "%s" на Forvo',
+  vi: 'Tìm kiếm "%s" với Forvo',
+  yue: '用 Forvo 搜尋 "%s"',
+};
+
 /**
  * 创建右键菜单项，用于触发 Forvo 搜索。
  *
+ * @param {string} langCode - 语言代码，用于设置多语言菜单标题。
  * @param {string} [menuId = CONTEXT_MENU_ID] - 菜单项的唯一 ID。 用于在点击时识别来源。
- * @param {string} [title='使用 Forvo 搜索 "%s"'] - 菜单显示文本。 `"%s"` 会被替换为用户选中的内容。
  */
-export function createContextMenu(
-  menuId = CONTEXT_MENU_ID,
-  title = '使用 Forvo 搜索 "%s"'
-) {
+export function createContextMenu(langCode, menuId = CONTEXT_MENU_ID) {
+  // 根据语言取对应菜单标题模板
+  const titleTemplate = MENU_TITLES[langCode] || MENU_TITLES.zh;
+
   // 移除已有菜单，避免重复创建
   chrome.contextMenus.removeAll().then(() => {
     chrome.contextMenus.create({
       id: menuId,
-      title: title,
+      title: titleTemplate,
       type: "normal",
       contexts: ["selection"], // 仅当用户选中文本时显示菜单
     });
@@ -41,8 +87,6 @@ export function handleContextMenuClick(
 
   // 获取用户右键选中的文字，并去除首尾空白
   const word = info.selectionText?.trim();
-  // 使用 ?. 的写法，如果 selectionText 是 undefined
-  // 不会抛出异常，只会让 word 变成 undefined
   if (!word) return; // 若为空，不处理
 
   // 构造完整搜索地址
