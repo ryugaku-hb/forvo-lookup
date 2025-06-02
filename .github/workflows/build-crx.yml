@@ -82,11 +82,17 @@ jobs:
         # secrets.CRX_PRIVATE_KEY 引用你在仓库 Settings → Secrets 中保存的变量
         run: echo "${{ secrets.CRX_PRIVATE_KEY }}" > mykey.pem
 
-      - name: Build CRX package
+      - name: Show current directory contents
+        run: |
+          echo "PWD: $(pwd)"
+          ls -al
+
+      - name: Pack CRX extension
         # crx3 pack ./: 打包当前目录为 .crx 扩展
         # --key: 指定使用哪个私钥文件进行签名
         # --out: 输出的文件名
-        run: crx3 pack ./ --key mykey.pem --out forvo-lookup.crx
+        run: crx3 pack . --key mykey.pem --out forvo-lookup.crx
+        working-directory: ${{ github.workspace }}
 
       - name: Create Release and Upload CRX
         # https://github.com/softprops/action-gh-release
