@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveButtonEl = document.getElementById("save");
 
   // 从 `chrome.storage.local` 中读取已保存的 `pageLang` 设置
-  chrome.storage.local.get(["pageLang"], (result) => {
+  chrome.storage.local.get(["pageLang"]).then((result) => {
     // 如果未设置，则使用默认的中文（zh）搜索地址
     const currentUrl = result.pageLang || DEFAULT_SEARCH_URL;
 
@@ -32,12 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
   saveButtonEl.onclick = () => {
     // 获取用户当前选择的语言代码
     const langCode = langSelectEl.value;
-
     // 构造对应语言的 Forvo 搜索 URL
     const searchUrl = langPrefix(langCode);
 
     // 将新搜索地址保存到 `chrome.storage.local` 中
-    chrome.storage.local.set({ pageLang: searchUrl }, () => {
+    chrome.storage.local.set({ pageLang: searchUrl }).then(() => {
       // 保存完成后提示用户
       alert("设置已保存！");
     });
