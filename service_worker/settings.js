@@ -1,4 +1,4 @@
-import { DEFAULT_LANG_CODE, getForvoBaseUrl } from "./lang.js";
+import { DEFAULT_LANG_CODE, getForvoBaseUrl } from "../common/forvoUtils.js";
 
 const DEFAULT_FORVO_BASE_URL = getForvoBaseUrl(DEFAULT_LANG_CODE);
 

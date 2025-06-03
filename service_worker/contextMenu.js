@@ -1,6 +1,50 @@
-import { CONTEXT_MENU_TITLES } from "./lang.js";
+const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
 
-export const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
+const CONTEXT_MENU_TITLES = {
+  de: 'Suche "%s" mit Forvo',
+  en: 'Search "%s" with Forvo',
+  es: 'Buscar "%s" con Forvo',
+  fr: 'Rechercher "%s" avec Forvo',
+  it: 'Cerca "%s" con Forvo',
+  ja: 'Forvo で "%s" を検索',
+  nl: 'Zoek "%s" met Forvo',
+  pl: 'Szukaj "%s" w Forvo',
+  pt: 'Pesquisar "%s" no Forvo',
+  ru: 'Искать "%s" на Forvo',
+  tr: '"%s" için Forvo\'da Ara',
+  zh: '使用 Forvo 搜索 "%s"',
+  ar: 'ابحث عن "%s" مع فورفو',
+  bg: 'Търсене на "%s" с Forvo',
+  bs: 'Pretraži "%s" sa Forvo',
+  ca: 'Cerca "%s" amb Forvo',
+  cs: 'Vyhledat "%s" pomocí Forvo',
+  da: 'Søg efter "%s" med Forvo',
+  el: 'Αναζήτηση "%s" με Forvo',
+  eu: 'Bilatu "%s" Forvorekin',
+  fa: 'جستجوی "%s" با Forvo',
+  fi: 'Etsi "%s" Forvolla',
+  hak: '用 Forvo 搜索 "%s"',
+  he: 'חפש "%s" עם Forvo',
+  hi: 'Forvo पर "%s" खोजें',
+  hr: 'Pretraži "%s" s Forvo',
+  hu: 'Keresés "%s" a Forvo-val',
+  hy: 'Որոնել "%s" Forvo-ով',
+  ind: 'Cari "%s" dengan Forvo',
+  ko: 'Forvo에서 "%s" 검색',
+  ku: 'Lêgerîn "%s" bi Forvo',
+  lv: 'Meklēt "%s" ar Forvo',
+  no: 'Søk etter "%s" med Forvo',
+  pa: 'Forvo ਨਾਲ "%s" ਖੋਜੋ',
+  ro: 'Caută "%s" cu Forvo',
+  sk: 'Vyhľadať "%s" cez Forvo',
+  sr: 'Претрага "%s" помоћу Форво-а',
+  sv: 'Sök efter "%s" med Forvo',
+  th: 'ค้นหา "%s" ด้วย Forvo',
+  tt: '"%s" өчен Forvo-да эзләү',
+  uk: 'Пошук "%s" на Forvo',
+  vi: 'Tìm kiếm "%s" với Forvo',
+  yue: '用 Forvo 搜尋 "%s"',
+};
 
 /**
  * 创建右键菜单项，用于触发 Forvo 搜索。
@@ -8,7 +52,7 @@ export const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
  * @param {string} langCode - 语言代码，用于设置多语言菜单标题。
  * @param {string} [contextMenuId = CONTEXT_MENU_ID] - 菜单项的唯一 ID。
  */
-export function createContextMenu(langCode, contextMenuId = CONTEXT_MENU_ID) {
+function createContextMenu(langCode, contextMenuId = CONTEXT_MENU_ID) {
   const menuTitle = CONTEXT_MENU_TITLES[langCode] || CONTEXT_MENU_TITLES.zh; // 根据语言取对应菜单标题模板
 
   // 移除已有菜单，避免重复创建
@@ -34,7 +78,7 @@ export function createContextMenu(langCode, contextMenuId = CONTEXT_MENU_ID) {
  * @param {string} [contextMenuId = CONTEXT_MENU_ID] - 要处理的菜单项 ID，用于确保只响应本插件创建的菜单事件。
  * @returns
  */
-export function handleContextMenuClick(
+function handleContextMenuClick(
   info,
   tab,
   forvoBaseUrl,
@@ -52,3 +96,5 @@ export function handleContextMenuClick(
     url: searchUrl, // 要打开的 Forvo 搜索地址
   });
 }
+
+export { createContextMenu, handleContextMenuClick };

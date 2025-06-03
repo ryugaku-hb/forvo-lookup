@@ -1,6 +1,6 @@
 import { loadUserSettings, watchStorageChanges } from "./settings.js";
 import { createContextMenu, handleContextMenuClick } from "./contextMenu.js";
-import { extractLangCode } from "./lang.js";
+import { extractLangCode } from "../common/forvoUtils.js";
 
 let currentForvoBaseUrl; // 默认的 Forvo 搜索地址（中文）
 
@@ -27,7 +27,13 @@ async function initializeExtension() {
 
     const newLangCode = extractLangCode(currentForvoBaseUrl);
     createContextMenu(newLangCode);
-    console.log("语言切换为：", newLangCode, "搜索地址为：", currentForvoBaseUrl);
+    
+    console.log(
+      "语言切换为：",
+      newLangCode,
+      "搜索地址为：",
+      currentForvoBaseUrl
+    );
   });
 }
 
