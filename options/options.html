@@ -10,9 +10,9 @@
   <body>
     <div class="container">
       <!-- 页面标题 -->
-      <h1 id="title">Forvo Lookup 设置</h1>
+      <h1 id="settingsTitle">Forvo Lookup 设置</h1>
       <!-- 标签：下拉框的说明文字 -->
-      <label for="langSelect" id="label">Forvo 页面语言：</label>
+      <label for="langSelect" id="langSelectLabel">Forvo 页面语言：</label>
       <!-- 语言选择下拉框，用户可选择 Forvo 页面使用的界面语言 -->
       <select id="langSelect">
         <!-- 常用语言选项 -->
@@ -67,12 +67,12 @@
         /Users/ryugaku/Documents/GitHub/.vscode
       </select>
       <!-- 保存按钮，点击后将所选语言保存到插件设置 -->
-      <button id="save">保存</button>
+      <button id="saveButton">保存</button>
 
       <!-- 引入外部 JavaScript 文件，负责保存用户选择的语言设置 -->
-      <script src="i18n.js"></script>
-      <script src="ui.js"></script>
-      <script src="options.js"></script>
+      <script src="js/lang.js"></script>
+      <script src="js/ui.js"></script>
+      <script src="js/options.js"></script>
     </div>
   </body>
 </html>

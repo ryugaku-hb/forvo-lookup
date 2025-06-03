@@ -1,21 +1,6 @@
-/**
- * 提取语言代码
- *
- * @example
- * extractLangCode("https://forvo.com/search/") // "en"
- * extractLangCode("https://ja.forvo.com/search/") // "ja"
- *
- * @param {string} url
- * @returns {string}
- */
-export function extractLangCode(url) {
-  if (url === "https://forvo.com/search/") return "en"; // 特殊处理英文
+export const DEFAULT_LANG_CODE = "zh";
 
-  const match = url.match(/^https:\/\/(.*?)\.forvo\.com/);
-  return match ? match[1] : "zh"; // 默认中文
-}
-
-export const MENU_TITLES = {
+export const CONTEXT_MENU_TITLES = {
   de: 'Suche "%s" mit Forvo',
   en: 'Search "%s" with Forvo',
   es: 'Buscar "%s" con Forvo',
@@ -60,3 +45,36 @@ export const MENU_TITLES = {
   vi: 'Tìm kiếm "%s" với Forvo',
   yue: '用 Forvo 搜尋 "%s"',
 };
+
+/**
+ * 从 Forvo 基础 URL 提取语言代码
+ *
+ * @example
+ * extractLangCode("https://forvo.com/search/") // 返回 "en"（英文无子域名）
+ * extractLangCode("https://ja.forvo.com/search/") // 返回 "ja"
+ *
+ * @param {string} forvoBaseUrl - Forvo 搜索的基础地址，例如 "https://ja.forvo.com/search/"
+ * @returns {string} 提取的语言代码，默认返回 "zh"
+ */
+export function extractLangCode(forvoBaseUrl) {
+  if (forvoBaseUrl === "https://forvo.com/search/") return "en"; // 英文特殊情况
+
+  const match = forvoBaseUrl.match(/^https:\/\/(.*?)\.forvo\.com/);
+  return match ? match[1] : "zh"; // 默认中文
+}
+
+/**
+ * 根据语言代码生成对应的 Forvo 搜索 URL 前缀
+ *
+ * @example
+ * getForvoBaseUrl("zh") // "https://zh.forvo.com/search/"
+ * getForvoBaseUrl("en") // "https://forvo.com/search/"
+ *
+ * @param {string} langCode - 语言代码，例如 "zh"、"en"、"ja" 等
+ * @returns {string} 对应的 Forvo 搜索 URL 前缀
+ */
+export function getForvoBaseUrl(langCode) {
+  return langCode === "en"
+    ? "https://forvo.com/search/" // 英文没有前缀
+    : `https://${langCode}.forvo.com/search/`;
+}
