@@ -22,7 +22,16 @@ jobs:
           VERSION=${{ github.ref_name }} 
           ZIP_NAME="forvo-lookup-${VERSION}.zip"
           echo "Creating zip: ${ZIP_NAME} (version: ${VERSION})"
-          zip -r "$ZIP_NAME" . -x ".github/*" ".git/*" ".gitignore" "*.zip"  "*.md" "LICENSE"
+          zip -r "$ZIP_NAME" . \
+              -x ".github/*" \
+                 ".git/*" \
+                 ".gitignore" \
+                 "*.zip"  \
+                 "*.md" \
+                 "LICENSE" \
+                 "package.json" \
+                 "package-lock.json" \
+                 "*.config.mjs"
 
       - name: Upload ZIP to GitHub Release · 上传 zip 到 GitHub Release 页面
         # https://github.com/softprops/action-gh-release
