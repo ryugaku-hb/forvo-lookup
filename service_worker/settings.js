@@ -1,4 +1,7 @@
-import { DEFAULT_LANG_CODE, getForvoBaseUrl } from "../common/forvoUtils.js";
+import {
+  DEFAULT_LANG_CODE,
+  getForvoBaseUrl,
+} from "../common/utils/forvoUtils.js";
 
 const DEFAULT_FORVO_BASE_URL = getForvoBaseUrl(DEFAULT_LANG_CODE);
 
@@ -22,20 +25,4 @@ const loadUserSettings = async () => {
   };
 };
 
-/**
- * 监听 `chrome.storage` 中 `forvoBaseUrl` 值的变化。
- *
- * 当用户在插件设置中更新 Forvo 搜索语言地址时，
- * 此函数会触发回调函数 `onUpdate`，并传入更新后的 `forvoBaseUrl`。
- *
- * @param {(newForvoBaseUrl: string) => void} onUpdate 当 `chrome.storage` 中 `forvoBaseUrl` 发生变化时触发的回调函数。
- */
-const watchStorageChanges = (onUpdate) => {
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.forvoBaseUrl?.newValue) {
-      onUpdate(changes.forvoBaseUrl.newValue);
-    }
-  });
-};
-
-export { loadUserSettings, watchStorageChanges };
+export { loadUserSettings };

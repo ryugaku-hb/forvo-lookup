@@ -1,52 +1,10 @@
-import { DEFAULT_LANG_CODE } from "../common/forvoUtils.js";
+import {
+  DEFAULT_LANG_CODE,
+  extractLangCode,
+} from "../common/utils/forvoUtils.js";
+import { CONTEXT_MENU_TITLES } from "../common/locales/index.js";
 
 const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
-
-const CONTEXT_MENU_TITLES = {
-  de: 'Suche "%s" mit Forvo',
-  en: 'Search "%s" with Forvo',
-  es: 'Buscar "%s" con Forvo',
-  fr: 'Rechercher "%s" avec Forvo',
-  it: 'Cerca "%s" con Forvo',
-  ja: 'Forvo で "%s" を検索',
-  nl: 'Zoek "%s" met Forvo',
-  pl: 'Szukaj "%s" w Forvo',
-  pt: 'Pesquisar "%s" no Forvo',
-  ru: 'Искать "%s" на Forvo',
-  tr: '"%s" için Forvo\'da Ara',
-  zh: '使用 Forvo 搜索 "%s"',
-  ar: 'ابحث عن "%s" مع فورفو',
-  bg: 'Търсене на "%s" с Forvo',
-  bs: 'Pretraži "%s" sa Forvo',
-  ca: 'Cerca "%s" amb Forvo',
-  cs: 'Vyhledat "%s" pomocí Forvo',
-  da: 'Søg efter "%s" med Forvo',
-  el: 'Αναζήτηση "%s" με Forvo',
-  eu: 'Bilatu "%s" Forvorekin',
-  fa: 'جستجوی "%s" با Forvo',
-  fi: 'Etsi "%s" Forvolla',
-  hak: '用 Forvo 搜索 "%s"',
-  he: 'חפש "%s" עם Forvo',
-  hi: 'Forvo पर "%s" खोजें',
-  hr: 'Pretraži "%s" s Forvo',
-  hu: 'Keresés "%s" a Forvo-val',
-  hy: 'Որոնել "%s" Forvo-ով',
-  ind: 'Cari "%s" dengan Forvo',
-  ko: 'Forvo에서 "%s" 검색',
-  ku: 'Lêgerîn "%s" bi Forvo',
-  lv: 'Meklēt "%s" ar Forvo',
-  no: 'Søk etter "%s" med Forvo',
-  pa: 'Forvo ਨਾਲ "%s" ਖੋਜੋ',
-  ro: 'Caută "%s" cu Forvo',
-  sk: 'Vyhľadať "%s" cez Forvo',
-  sr: 'Претрага "%s" помоћу Форво-а',
-  sv: 'Sök efter "%s" med Forvo',
-  th: 'ค้นหา "%s" ด้วย Forvo',
-  tt: '"%s" өчен Forvo-да эзләү',
-  uk: 'Пошук "%s" на Forvo',
-  vi: 'Tìm kiếm "%s" với Forvo',
-  yue: '用 Forvo 搜尋 "%s"',
-};
 
 /**
  * 创建右键菜单项，用于触发 Forvo 搜索。
@@ -70,16 +28,27 @@ const createContextMenu = (langCode, contextMenuId = CONTEXT_MENU_ID) => {
 };
 
 /**
+ * 初始化右键菜单，根据设置中的语言 URL。
+ *
+ * @exports
+ * @param {string} forvoBaseUrl
+ */
+const setupContextMenu = (forvoBaseUrl) => {
+  const langCode = extractLangCode(forvoBaseUrl);
+  createContextMenu(langCode);
+};
+
+/**
  * 处理右键菜单点击事件，跳转到 Forvo 搜索页面。
  *
  * 当用户在网页中选中文本并通过右键菜单触发搜索时，将自动构造对应的 Forvo 搜索链接，
  * 并在新标签页中打开搜索结果页面。
  *
  * @param {chrome.contextMenus.OnClickData} info 包含上下文信息的对象，
- *   例如 选中的文本（`info.selectionText`）、菜单项 ID 等。
+ *   如 选中的文本（`info.selectionText`）、菜单项 ID 等。
  * @param {chrome.tabs.Tab} tab 当前激活的标签页对象，用于确定新标签页的打开位置。
  * @param {string} forvoBaseUrl Forvo 搜索的基础 URL，
- *   例如 "https://zh.forvo.com/search/" "https://forvo.com/search/" 等。
+ *   如 `"https://zh.forvo.com/search/"`, `"https://forvo.com/search/"` 等。
  * @param {string} [contextMenuId=CONTEXT_MENU_ID] 要处理的菜单项 ID，用于确保只响应本插件创建的菜单事件。
  */
 const handleContextMenuClick = (
@@ -101,4 +70,44 @@ const handleContextMenuClick = (
   });
 };
 
-export { createContextMenu, handleContextMenuClick };
+/**
+ * 注册右键菜单点击监听器。
+ *
+ * @exports
+ * @param {() => string} getBaseUrlFn - 获取当前 base URL 的函数（避免闭包值失效）
+ */
+const registerContextMenuClickListener = (getBaseUrlFn) => {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    handleContextMenuClick(info, tab, getBaseUrlFn());
+  });
+};
+
+/**
+ * 监听 `chrome.storage` 中的 `forvoBaseUrl` 变化，
+ * 并在变化时调用回调函数、更新右键菜单。
+ *
+ * @exports
+ * @param {(newUrl: string) => void} onUrlChange - 当 `forvoBaseUrl` 改变时执行的回调函数
+ */
+const observeForvoUrlChanges = (onUrlChange) => {
+  chrome.storage.onChanged.addListener((changes) => {
+    const newUrl = changes.forvoBaseUrl?.newValue;
+    if (newUrl) {
+      onUrlChange(newUrl);
+      setupContextMenu(newUrl);
+
+      console.log(
+        "语言切换为：",
+        extractLangCode(newUrl),
+        "搜索地址为：",
+        newUrl
+      );
+    }
+  });
+};
+
+export {
+  setupContextMenu,
+  registerContextMenuClickListener,
+  observeForvoUrlChanges,
+};

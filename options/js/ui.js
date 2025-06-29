@@ -1,10 +1,14 @@
-import { languages, getLocalizedTextMap } from "./i18n.js";
+import { LANGUAGES, getUILocalization } from "../../common/locales/index.js";
 
 /**
  * 渲染语言下拉框。
  *
- * 根据语言列表 `languages` 动态创建 `<select>` 元素的 `<optgroup>` 和 `<option>`。
- * 会渲染成如下格式：
+ * 根据语言列表 `LANGUAGES` 动态创建 `<select>` 元素的 `<optgroup>` 和 `<option>` 结构，
+ * 并将结果渲染到指定的 `<select>` 元素中。
+ *
+ * Note: 会清空传入的 `langSelectEl` 内容并重新插入 DOM 元素。
+ *
+ * 默认渲染结构示例：
  *
  * ```html
  * <select id="langSelect">
@@ -24,14 +28,13 @@ import { languages, getLocalizedTextMap } from "./i18n.js";
  * @param {HTMLSelectElement} langSelectEl 要渲染语言选项的 `<select>` 元素
  */
 const renderLanguageSelect = (langSelectEl) => {
-  // 先清空已有内容，防止重复渲染
-  langSelectEl.innerHTML = "";
+  langSelectEl.innerHTML = ""; // 清空内容
 
   /**
    * 创建一个语言分组选项 `<optgroup>` 元素。
    *
-   * @param {string} label `<optgroup>` 标签的文本，例如 `"🌍 常用语言"`
-   * @param {Array<{code: string, name: string}>} options 语言选项数组，每项包含代码和名称
+   * @param {string} label `<optgroup>` 标签的文本，例如 `"🌍 常用语言"`, `"🌐 其他语言"`
+   * @param {Array<{code: string, name: string}>} options 语言选项数组，每项包含 `code` 和 `name`
    * @returns {HTMLOptGroupElement} 创建好的 `<optgroup>` 元素
    */
   const createOptionsGroup = (label, options) => {
@@ -46,24 +49,28 @@ const renderLanguageSelect = (langSelectEl) => {
     return group;
   };
 
-  langSelectEl.appendChild(createOptionsGroup("🌍 常用语言", languages.common));
-  langSelectEl.appendChild(createOptionsGroup("🌐 其他语言", languages.others));
+  langSelectEl.appendChild(createOptionsGroup("🌍 常用语言", LANGUAGES.common));
+  langSelectEl.appendChild(createOptionsGroup("🌐 其他语言", LANGUAGES.others));
 };
 
 /**
- * 根据语言代码更新页面文本。
+ * 根据语言代码更新所有带有 `data-i18n` 的元素文本。
  *
  * @param {string} langCode 语言代码，例如 `"en"`, `"ja"`, `"zh-CN"`
  */
 const updateTextByLang = (langCode) => {
-  const localizedTextMap = getLocalizedTextMap(langCode);
+  const fallbackLang = "zh";
+  const uiTextMap =
+    getUILocalization(langCode) || getUILocalization(fallbackLang);
 
-  document.getElementById("settingsTitle").textContent =
-    localizedTextMap.settingsTitleText;
-  document.getElementById("langSelectLabel").textContent =
-    localizedTextMap.langSelectLabelText;
-  document.getElementById("saveButton").textContent =
-    localizedTextMap.saveButtonText;
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (uiTextMap[key]) {
+      el.textContent = uiTextMap[key];
+    } else {
+      console.warn(`Missing i18n key: ${key}`);
+    }
+  });
 };
 
 export { renderLanguageSelect, updateTextByLang };

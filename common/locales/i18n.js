@@ -1,61 +1,9 @@
-import { DEFAULT_LANG_CODE } from "../../common/forvoUtils.js";
-
+import { DEFAULT_LANG_CODE } from "../utils/forvoUtils.js";
 /**
- * 用于展示语言选择菜单
- */
-const languages = {
-  common: [
-    { code: "de", name: "Deutsch" },
-    { code: "en", name: "English" },
-    { code: "es", name: "Español" },
-    { code: "fr", name: "Français" },
-    { code: "it", name: "Italiano" },
-    { code: "ja", name: "日本語" },
-    { code: "nl", name: "Nederlands" },
-    { code: "pl", name: "Polski" },
-    { code: "pt", name: "Português" },
-    { code: "ru", name: "Русский" },
-    { code: "tr", name: "Türkçe" },
-    { code: "zh", name: "汉语" },
-  ],
-  others: [
-    { code: "ar", name: "العربية" },
-    { code: "bg", name: "Български" },
-    { code: "bs", name: "Bosanski" },
-    { code: "ca", name: "Català" },
-    { code: "cs", name: "Čeština" },
-    { code: "da", name: "Dansk" },
-    { code: "el", name: "Ελληνικά" },
-    { code: "eu", name: "Euskara" },
-    { code: "fa", name: "پارسی" },
-    { code: "fi", name: "Suomi" },
-    { code: "hak", name: "客家语" },
-    { code: "he", name: "עברית" },
-    { code: "hi", name: "हिन्दी" },
-    { code: "hr", name: "Hrvatski" },
-    { code: "hu", name: "Magyar" },
-    { code: "hy", name: "Հայերեն" },
-    { code: "ind", name: "Bahasa Indonesia" },
-    { code: "ko", name: "한국어" },
-    { code: "ku", name: "Kurdî / كوردی" },
-    { code: "lv", name: "Latviešu" },
-    { code: "no", name: "Norsk bokmål" },
-    { code: "pa", name: "ਪੰਜਾਬੀ" },
-    { code: "ro", name: "Română" },
-    { code: "sk", name: "Slovenčina" },
-    { code: "sr", name: "Српски / Srpski" },
-    { code: "sv", name: "Svenska" },
-    { code: "th", name: "ไทย" },
-    { code: "tt", name: "Татар теле" },
-    { code: "uk", name: "Українська" },
-    { code: "vi", name: "Tiếng Việt" },
-    { code: "yue", name: "粵文" },
-  ],
-};
-
-/**
- * 提供每种语言的本地化文本。
- * 每种语言包括界面标题、标签、按钮文本和保存提示。
+ * 本地化字符串 `i18n`
+ *
+ * 用于设置页面的本地化文案。
+ * 针对每种语言，定义一组本地化字符串（如按钮文本、标签、提示信息）。
  */
 const i18n = {
   de: {
@@ -320,19 +268,30 @@ const i18n = {
 };
 
 /**
- * @typedef {object} LocalizedTextMap
- * @property {string} buttonLabel
- * @property {string} title
- * @property {string} description
- * @property {string} tooltip
+ * @typedef {object} LocalizedUIText
+ * 本地化的设置页面 UI 文本映射。
+ *
+ * @property {string} settingsTitleText 设置页面的标题
+ * @property {string} langSelectLabelText 语言选择标签的文本
+ * @property {string} saveButtonText 保存按钮的文本
+ * @property {string} saveSuccessMessage 保存成功时的提示消息
  */
 
 /**
+ * 根据语言代码返回对应的本地化 UI 文本。
+ *
  * @param {string} langCode 语言代码，例如 `"en"`, `"ja"`, `"zh"`
- * @returns {LocalizedTextMap} 包含按钮、标题等 UI 文本的对象
+ * @returns {LocalizedUIText} 包含设置页面各项文本的对象
+ *
+ * @example
+ * const uiTextMap = getUILocalization("ja");
+ * console.log(uiTextMap.settingsTitleText); // Forvo Lookup 設定
+ * console.log(uiTextMap.langSelectLabelText); // Forvo ページの言語：
+ * console.log(uiTextMap.saveButtonText); // 保存
+ * console.log(uiTextMap.saveSuccessMessage); // 設定が保存されました！
  */
-const getLocalizedTextMap = (langCode) => {
+const getUILocalization = (langCode) => {
   return i18n[langCode] || i18n[DEFAULT_LANG_CODE];
 };
 
-export { languages, getLocalizedTextMap };
+export { getUILocalization };

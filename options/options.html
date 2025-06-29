@@ -10,13 +10,13 @@
   <body>
     <div class="container">
       <!-- 页面标题 -->
-      <h1 id="settingsTitle">Forvo Lookup 设置</h1>
+      <h1 data-i18n="settingsTitleText"></h1>
       <!-- 标签：下拉框的说明文字 -->
-      <label for="langSelect" id="langSelectLabel">Forvo 页面语言：</label>
+      <label for="langSelect" data-i18n="langSelectLabelText"></label>
       <!-- 语言选择下拉框，用户可选择 Forvo 页面使用的界面语言 -->
       <select id="langSelect"></select>
       <!-- 保存按钮，点击后将所选语言保存到插件设置 -->
-      <button id="saveButton">保存</button>
+      <button id="saveButton" data-i18n="saveButtonText"></button>
 
       <!-- 引入外部 JavaScript 文件，负责保存用户选择的语言设置 -->
       <script type="module" src="js/options.js"></script>

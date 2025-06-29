@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initLanguageSelect(langSelectEl);
 
-  saveButtonEl.onclick = () => {
+  saveButtonEl.addEventListener("click", () => {
     saveLanguageSetting(langSelectEl.value);
-  };
+  });
 });

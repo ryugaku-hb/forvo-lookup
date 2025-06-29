@@ -1,12 +1,14 @@
-import { loadUserSettings, watchStorageChanges } from "./settings.js";
-import { createContextMenu, handleContextMenuClick } from "./contextMenu.js";
-import { extractLangCode } from "../common/forvoUtils.js";
-
+import { loadUserSettings } from "./settings.js";
+import {
+  setupContextMenu,
+  registerContextMenuClickListener,
+  observeForvoUrlChanges,
+} from "./contextMenu.js";
 
 /**
  * 默认的 Forvo 搜索地址（中文）
  */
-let currentForvoBaseUrl; 
+let currentForvoBaseUrl;
 
 /**
  * 执行初始化流程
@@ -18,28 +20,10 @@ const initializeExtension = async () => {
   const settings = await loadUserSettings();
   currentForvoBaseUrl = settings.forvoBaseUrl;
 
-  // 提取语言代码（如 zh、ja 等），并创建对应语言的右键菜单项
-  createContextMenu(extractLangCode(currentForvoBaseUrl));
-
-  // 当用户点击右键菜单项时触发的事件处理逻辑
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    // 使用当前语言对应的搜索地址跳转 Forvo 页面
-    handleContextMenuClick(info, tab, currentForvoBaseUrl);
-  });
-
-  // 监听 chrome.storage 中 forvoBaseUrl 的变化，动态更新搜索地址与菜单语言
-  watchStorageChanges((newForvoBaseUrl) => {
-    currentForvoBaseUrl = newForvoBaseUrl;
-
-    const newLangCode = extractLangCode(currentForvoBaseUrl);
-    createContextMenu(newLangCode);
-
-    console.log(
-      "语言切换为：",
-      newLangCode,
-      "搜索地址为：",
-      currentForvoBaseUrl
-    );
+  setupContextMenu(currentForvoBaseUrl);
+  registerContextMenuClickListener(() => currentForvoBaseUrl);
+  observeForvoUrlChanges((newUrl) => {
+    currentForvoBaseUrl = newUrl;
   });
 };
 

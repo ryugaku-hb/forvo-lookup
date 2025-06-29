@@ -2,9 +2,9 @@ import {
   DEFAULT_LANG_CODE,
   getForvoBaseUrl,
   extractLangCode,
-} from "../../common/forvoUtils.js";
+} from "../../common/utils/forvoUtils.js";
+import { getUILocalization } from "../../common/locales/index.js";
 import { updateTextByLang, renderLanguageSelect } from "./ui.js";
-import { getLocalizedTextMap } from "./i18n.js";
 
 /**
  * 初始化语言下拉框选项，并根据存储的设置更新当前语言。
@@ -39,7 +39,7 @@ const saveLanguageSetting = (langCode) => {
   const forvoBaseUrl = getForvoBaseUrl(langCode);
   chrome.storage.local.set({ forvoBaseUrl: forvoBaseUrl }).then(() => {
     updateTextByLang(langCode);
-    alert(getLocalizedTextMap(langCode).saveSuccessMessage);
+    alert(getUILocalization(langCode).saveSuccessMessage);
   });
 };
 
