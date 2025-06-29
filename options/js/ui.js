@@ -1,4 +1,4 @@
-import { LANGUAGES, getUILocalization } from "../../common/locales/index.js";
+import { LANGUAGES, getUILocalization } from "../../common/locales.js";
 
 /**
  * 渲染语言下拉框。

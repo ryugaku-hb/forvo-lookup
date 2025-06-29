@@ -1,8 +1,8 @@
 import {
   DEFAULT_LANG_CODE,
   extractLangCode,
-} from "../common/utils/forvoUtils.js";
-import { CONTEXT_MENU_TITLES } from "../common/locales/index.js";
+} from "../common/utils.js";
+import { CONTEXT_MENU_TITLES } from "../common/locales.js";
 
 const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
 

@@ -1,7 +1,7 @@
 import {
   DEFAULT_LANG_CODE,
   getForvoBaseUrl,
-} from "../common/utils/forvoUtils.js";
+} from "../common/utils.js";
 
 const DEFAULT_FORVO_BASE_URL = getForvoBaseUrl(DEFAULT_LANG_CODE);
 

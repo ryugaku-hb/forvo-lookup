@@ -2,8 +2,8 @@ import {
   DEFAULT_LANG_CODE,
   getForvoBaseUrl,
   extractLangCode,
-} from "../../common/utils/forvoUtils.js";
-import { getUILocalization } from "../../common/locales/index.js";
+} from "../../common/utils.js";
+import { getUILocalization } from "../../common/locales.js";
 import { updateTextByLang, renderLanguageSelect } from "./ui.js";
 
 /**
