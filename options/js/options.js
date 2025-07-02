@@ -1,13 +1,16 @@
-import { initLanguageSelect, saveLanguageSetting } from "./languageSettings.js";
+import { initSelect, saveSetting } from "./settings.js";
 
 // 等待页面 DOM 加载完成后执行初始化逻辑
 document.addEventListener("DOMContentLoaded", () => {
   const langSelectEl = document.getElementById("langSelect");
+  const subdomainSelectEl = document.getElementById("subdomainSelect");
   const saveButtonEl = document.getElementById("saveButton");
 
-  initLanguageSelect(langSelectEl);
+  initSelect(langSelectEl, subdomainSelectEl);
 
   saveButtonEl.addEventListener("click", () => {
-    saveLanguageSetting(langSelectEl.value);
+    const langCode = langSelectEl.value;
+    const subdomaiCode = subdomainSelectEl.value;
+    saveSetting(langCode, subdomaiCode);
   });
 });

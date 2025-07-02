@@ -11,11 +11,22 @@
     <div class="container">
       <!-- 页面标题 -->
       <h1 data-i18n="settingsTitleText"></h1>
-      <!-- 标签：下拉框的说明文字 -->
-      <label for="langSelect" data-i18n="langSelectLabelText"></label>
-      <!-- 语言选择下拉框，用户可选择 Forvo 页面使用的界面语言 -->
-      <select id="langSelect"></select>
-      <!-- 保存按钮，点击后将所选语言保存到插件设置 -->
+
+      <!-- 发音语言设置 -->
+      <div class="form-group">
+        <label for="langSelect" data-i18n="langSelectLabelText"></label>
+        <select id="langSelect"></select>
+      </div>
+
+      <!-- 选择 Forvo 子域名，用于确定请求的子域 -->
+      <div class="form-group">
+        <label
+          for="subdomainSelect"
+          data-i18n="subdomainSelectLabelText"
+        ></label>
+        <select id="subdomainSelect"></select>
+      </div>
+
       <button id="saveButton" data-i18n="saveButtonText"></button>
 
       <!-- 引入外部 JavaScript 文件，负责保存用户选择的语言设置 -->

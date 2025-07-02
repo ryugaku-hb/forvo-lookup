@@ -2,13 +2,10 @@ import { loadUserSettings } from "./settings.js";
 import {
   setupContextMenu,
   registerContextMenuClickListener,
-  observeForvoUrlChanges,
+  observeForvoSettingsChanges,
 } from "./contextMenu.js";
 
-/**
- * 默认的 Forvo 搜索地址（中文）
- */
-let currentForvoBaseUrl;
+let currentSubdomainCode;
 
 /**
  * 执行初始化流程
@@ -16,14 +13,15 @@ let currentForvoBaseUrl;
  * @async
  */
 const initializeExtension = async () => {
-  // 从本地存储中读取用户设置的 Forvo 搜索地址（如 https://ja.forvo.com/search/）
-  const settings = await loadUserSettings();
-  currentForvoBaseUrl = settings.forvoBaseUrl;
+  const { langCode, subdomainCode } = await loadUserSettings();
+  currentSubdomainCode = subdomainCode;
 
-  setupContextMenu(currentForvoBaseUrl);
-  registerContextMenuClickListener(() => currentForvoBaseUrl);
-  observeForvoUrlChanges((newUrl) => {
-    currentForvoBaseUrl = newUrl;
+  setupContextMenu(langCode);
+  registerContextMenuClickListener(() => currentSubdomainCode);
+  observeForvoSettingsChanges({
+    onSubdomainCodeChange: (newSubdomainCode) => {
+      currentSubdomainCode = newSubdomainCode;
+    },
   });
 };
 

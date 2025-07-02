@@ -6,27 +6,13 @@
 // 语言代码相关常量与函数
 // ==============================
 
-/**
- * 默认语言代码
- */
-const DEFAULT_LANG_CODE = "zh";
-
-/**
- * 支持的语言代码列表
- */
-// prettier-ignore
-const SUPPORTED_LANG_CODES = [
-  "ar", "bg", "bs", "ca", "cs", "da", "de", "el", "en", "es",
-  "eu", "fa", "fi", "fr", "hak", "he", "hi", "hr", "hu", "hy",
-  "ind", "it", "ja", "ko", "ku", "lv", "nl", "no", "pa", "pl", "pt",
-  "ro", "ru", "sk", "sr", "sv", "th", "tt", "tr", "uk", "vi", "yue", "zh"
-];
+import { SUPPORTED_LANG_CODES } from "../constants/index.js";
 
 /**
  * 判断是否为受支持的语言代码。
  *
- * @param {string} langCode 待验证的语言代码（如 `"en"`, `"zh"`, `"ja"`）
- * @returns {boolean} 是否为有效语言代码
+ * @param {string} langCode 待验证的语言代码，如 `"en"`, `"zh"`, `"ja"`
+ * @returns {boolean}
  *
  * @example
  * isValidLangCode("en") // true
@@ -111,64 +97,94 @@ class UnsupportedLangCodeError extends Error {
 // ==============================
 
 /**
- * 从 Forvo 搜索 URL 中提取语言代码。
+ * 用于匹配 Forvo 多种形式的语言页面 URL
  *
- * @param {string} forvoUrl - Forvo 搜索 URL
+ * 正则说明
+ * 1. 开头锚点 ^
+ * 匹配字符串的起始位置，如 /^abc/ 匹配 "abc123"
+ * ^https:\/\/ 匹配字符串开头及 "https://" 前缀
+ * 2. 非捕获组 (?: ... )
+ * (?:abc)? 表示 abc 是可选的，但不捕获
+ * 3. 捕获组 ( ... )
+ * match[0] 整个匹配到的 URL 字符串
+ * match[1] ([a-z]{2,4}) 语言子域名，如 "zh", "ja"；如无子域名，则为 undefined
+ * match[2] (search|word) 匹配到的路径部分 "search" 或 "word"
+ * match[3] (\/.*) 后续路径，如 "/你好", "/hello"，如无则为 undefined
+ * 4. 量词 ?
+ * 匹配前一字符或组出现 0 或 1 次，如 /a?b/ 匹配 "b" 和 "ab"
+ * (?:([a-z]{2,4})\.)? 可选
+ * (\/.*)? 可选
+ */
+const FORVO_URL_REGEX =
+  /^https:\/\/(?:([a-z]{2,4})\.)?forvo\.com\/(search|word)(\/.*)?/;
+
+/**
+ * 从 Forvo 搜索或词条 URL 中提取语言代码。
+ *
+ * @param {string} forvoUrl
  * @returns {string} 提取的语言代码，若无匹配返回默认值
  *
  * @throws {InvalidTypeError} 如果参数 `forvoUrl` 不是字符串类型
- * @throws {InvalidUrlError} 如果 URL 不符合 Forvo 的搜索页面格式
+ * @throws {InvalidUrlError} 如果参数 `forvoUrl` 不符合 Forvo 的支持 URL 格式
  *
  * @example
- * extractLangCode("https://forvo.com/search/") // "en"
- * extractLangCode("https://ja.forvo.com/search/") // "ja"
- * extractLangCode("https://zh.forvo.com/search/大家") // "zh"
+ * extractLangCode("https://forvo.com/search/hello"); // "en"
+ * extractLangCode("https://forvo.com/word/hello"); // "en"
+ * extractLangCode("https://ja.forvo.com/search/こんにちは"); // "ja"
+ * extractLangCode("https://zh.forvo.com/word/大家"); // "zh"
+ * extractLangCode("https://de.forvo.com/search/hallo"); // "de"
  */
 const extractLangCode = (forvoUrl) => {
   if (typeof forvoUrl !== "string") {
-    throw new InvalidTypeError("forvoBaseUrl", "string", typeof forvoUrl);
+    throw new InvalidTypeError("forvoUrl", "string", typeof forvoUrl);
   }
 
-  // 英文：无子域名 https://forvo.com/search 或 /search/word
-  if (/^https:\/\/forvo\.com\/search(\/.*)?/.test(forvoUrl)) {
-    return "en";
-  }
-  // 其他语言子域名，如 https://ja.forvo.com/search 或 /search/word
-  const match = forvoUrl.match(
-    /^https:\/\/([a-z]{2,4})\.forvo\.com\/search(\/.*)?/
-  );
+  // 匹配格式，支持无语言子域名（英文）或有语言子域名（其他语言）
+  const match = forvoUrl.match(FORVO_URL_REGEX);
 
   if (!match) {
     throw new InvalidUrlError("Forvo", forvoUrl);
   }
 
-  return match[1] || DEFAULT_LANG_CODE;
+  const langCode = match[1]; // 子域名，如 zh, ja 或 undefined
+  return langCode || "en"; // 没有子域名则默认为英文
 };
 
 /**
- * 根据语言代码生成对应的 Forvo 搜索 URL 前缀。
- * 
- * @param {string} langCode - 语言代码（如 `"zh"`, `"en"`, `"ja"`）
- * @returns {string} 对应的 Forvo 搜索 URL 前缀
+ * @param {string} subdomainCode
+ * @returns {string}
  *
- * @throws {InvalidTypeError} 如果参数 `langCode` 不是字符串
- * @throws {UnsupportedLangCodeError} 如果 `langCode` 不是支持的语言代码之一（由 `isValidLangCode()` 判定）
- * 
+ * @throws {InvalidTypeError} 如果参数 `subdomainCode` 不是字符串
+ * @throws {UnsupportedLangCodeError} 如果 `subdomainCode` 不是支持的语言代码之一
+ *
  * @example
- * getForvoBaseUrl("zh") // "https://zh.forvo.com/search/"
- * getForvoBaseUrl("en") // "https://forvo.com/search/"
+ * getForvoBaseUrlByRegion("zh") // "https://zh.forvo.com/"
+ * getForvoBaseUrlByRegion("en") // "https://forvo.com/"
  */
-const getForvoBaseUrl = (langCode) => {
-  if (typeof langCode !== "string") {
-    throw new InvalidTypeError("langCode", "string", typeof langCode);
+const getForvoBaseUrlBySubdomain = (subdomainCode) => {
+  if (typeof subdomainCode !== "string") {
+    throw new InvalidTypeError("subdomainCode", "string", typeof subdomainCode);
   }
-  if (!isValidLangCode(langCode)) {
-    throw new UnsupportedLangCodeError(langCode);
+  if (!isValidLangCode(subdomainCode)) {
+    throw new UnsupportedLangCodeError(subdomainCode);
   }
 
-  return langCode === "en"
-    ? "https://forvo.com/search/" // 英文没有前缀
-    : `https://${langCode}.forvo.com/search/`;
+  return subdomainCode === "en"
+    ? "https://forvo.com/" // 英文没有前缀
+    : `https://${subdomainCode}.forvo.com/`;
+};
+
+/**
+ * 获取所有支持语言的 Forvo 基础 URL 列表。
+ *
+ * @returns {string[]} 包含所有支持语言区域的 Forvo 基础 URL 数组
+ *
+ * @example
+ * getAllForvoBaseUrls();
+ * // => ["https://jp.forvo.com/", "https://zh.forvo.com/", ..., "https://forvo.com/"]
+ */
+const getAllForvoBaseUrls = () => {
+  return SUPPORTED_LANG_CODES.map((lang) => getForvoBaseUrlBySubdomain(lang));
 };
 
 // ==============================
@@ -176,11 +192,14 @@ const getForvoBaseUrl = (langCode) => {
 // ==============================
 
 export {
-  DEFAULT_LANG_CODE,
+  // 校验函数
   isValidLangCode,
+  // 错误类型
   InvalidTypeError,
   InvalidUrlError,
   UnsupportedLangCodeError,
+  // 核心工具函数
   extractLangCode,
-  getForvoBaseUrl,
+  getForvoBaseUrlBySubdomain,
+  getAllForvoBaseUrls,
 };

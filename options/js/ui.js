@@ -1,17 +1,21 @@
-import { LANGUAGES, getUILocalization } from "../../common/locales.js";
+import { DEFAULT_LANG_CODE } from "../../common/constants/index.js";
+import {
+  getAllLanguages,
+  getLanguagesByCategory,
+  getUILocalization,
+} from "../../common/locales/index.js";
+import { getForvoBaseUrlBySubdomain } from "../../common/utils/index.js";
 
 /**
  * 渲染语言下拉框。
  *
- * 根据语言列表 `LANGUAGES` 动态创建 `<select>` 元素的 `<optgroup>` 和 `<option>` 结构，
- * 并将结果渲染到指定的 `<select>` 元素中。
+ * 基于 LANGUAGES 数据生成两个 optgroup：
+ * - 常用语言（LANGUAGES.common）
+ * - 其他语言（LANGUAGES.others）
  *
- * Note: 会清空传入的 `langSelectEl` 内容并重新插入 DOM 元素。
- *
- * 默认渲染结构示例：
- *
+ * 渲染结构：
  * ```html
- * <select id="langSelect">
+ * <select>
  *  <optgroup label="🌍 常用语言">
  *    <option value="de">Deutsch</option>
  *    <option value="en">English</option>
@@ -25,21 +29,22 @@ import { LANGUAGES, getUILocalization } from "../../common/locales.js";
  * </select>
  * ```
  *
- * @param {HTMLSelectElement} langSelectEl 要渲染语言选项的 `<select>` 元素
+ * @param {HTMLSelectElement} langSelectEl 要渲染的 `<select>` 元素
  */
 const renderLanguageSelect = (langSelectEl) => {
   langSelectEl.innerHTML = ""; // 清空内容
 
   /**
-   * 创建一个语言分组选项 `<optgroup>` 元素。
+   * 创建 `<optgroup>` 容器
    *
-   * @param {string} label `<optgroup>` 标签的文本，例如 `"🌍 常用语言"`, `"🌐 其他语言"`
-   * @param {Array<{code: string, name: string}>} options 语言选项数组，每项包含 `code` 和 `name`
-   * @returns {HTMLOptGroupElement} 创建好的 `<optgroup>` 元素
+   * @param {string} label 分组选项的标题
+   * @param {Array<{code: string, name: string}>} options
+   * @returns {HTMLOptGroupElement}
    */
   const createOptionsGroup = (label, options) => {
     const group = document.createElement("optgroup");
     group.label = label;
+
     options.forEach(({ code, name }) => {
       const option = document.createElement("option");
       option.value = code;
@@ -49,19 +54,49 @@ const renderLanguageSelect = (langSelectEl) => {
     return group;
   };
 
-  langSelectEl.appendChild(createOptionsGroup("🌍 常用语言", LANGUAGES.common));
-  langSelectEl.appendChild(createOptionsGroup("🌐 其他语言", LANGUAGES.others));
+  langSelectEl.appendChild(
+    createOptionsGroup("🌍 常用语言", getLanguagesByCategory("common"))
+  );
+  langSelectEl.appendChild(
+    createOptionsGroup("🌐 其他语言", getLanguagesByCategory("others"))
+  );
 };
 
 /**
- * 根据语言代码更新所有带有 `data-i18n` 的元素文本。
+ * 渲染 Forvo 子域名选择器（用于指定使用哪个语言子域名）。
  *
- * @param {string} langCode 语言代码，例如 `"en"`, `"ja"`, `"zh-CN"`
+ * 每个选项的显示形式为： <语言代码> - <完整域名>，如：
+ * - `en - forvo.com`
+ * - `ja - ja.forvo.com`
+ *
+ * 实际 `<option>` 值为 `subdomainCode`，用于进一步生成请求 URL。
+ *
+ * @param {HTMLSelectElement} subdomainSelectEl
  */
-const updateTextByLang = (langCode) => {
-  const fallbackLang = "zh";
+const renderSubdomainSelect = (subdomainSelectEl) => {
+  subdomainSelectEl.innerHTML = ""; // 清空已有选项
+
+  getAllLanguages().forEach(({ code, name }) => {
+    console.log(code, name);
+
+    const url = getForvoBaseUrlBySubdomain(code);
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = `${code} (${name}) - ${url}`;
+    subdomainSelectEl.appendChild(option);
+  });
+};
+
+/**
+ * 根据 `langCode` 更新所有带有 `data-i18n` 的元素文本。
+ *
+ * @param {string} langCode 如 `"en"`, `"ja"`, `"zh"`
+ */
+const updateTextByLangCode = (langCode) => {
   const uiTextMap =
-    getUILocalization(langCode) || getUILocalization(fallbackLang);
+    getUILocalization(langCode) || getUILocalization(DEFAULT_LANG_CODE);
+
+  console.log(uiTextMap);
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
@@ -73,4 +108,4 @@ const updateTextByLang = (langCode) => {
   });
 };
 
-export { renderLanguageSelect, updateTextByLang };
+export { renderLanguageSelect, renderSubdomainSelect, updateTextByLangCode };

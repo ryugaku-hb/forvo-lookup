@@ -1,72 +1,89 @@
 import {
-  DEFAULT_LANG_CODE,
-  extractLangCode,
-} from "../common/utils.js";
-import { CONTEXT_MENU_TITLES } from "../common/locales.js";
-
-const CONTEXT_MENU_ID = "forvo-lookup"; // 默认右键菜单 ID
+  CONTEXT_MENU_IDS,
+  CONTEXT_MENU_TYPE,
+  STORAGE_KEYS,
+} from "../common/constants/index.js";
+import { getMenuTitle } from "../common/locales/index.js";
+import { getForvoBaseUrlBySubdomain } from "../common/utils/index.js";
 
 /**
- * 创建右键菜单项，用于触发 Forvo 搜索。
+ * 创建一个右键菜单项。
  *
- * @param {string} langCode 语言代码，用于设置多语言菜单标题。
- * @param {string} [contextMenuId=CONTEXT_MENU_ID] 菜单项的唯一 ID。
+ * @param {string} id 菜单 ID
+ * @param {string} title 菜单显示的标题文本
  */
-const createContextMenu = (langCode, contextMenuId = CONTEXT_MENU_ID) => {
-  const menuTitle =
-    CONTEXT_MENU_TITLES[langCode] || CONTEXT_MENU_TITLES[DEFAULT_LANG_CODE]; // 根据语言取对应菜单标题模板
-
-  // 移除已有菜单，避免重复创建
-  chrome.contextMenus.removeAll().then(() => {
-    chrome.contextMenus.create({
-      id: contextMenuId,
-      title: menuTitle,
-      type: "normal",
-      contexts: ["selection"], // 仅当用户选中文本时显示菜单
-    });
+const createMenuItem = (id, title) => {
+  chrome.contextMenus.create({
+    id,
+    title,
+    type: "normal",
+    contexts: ["selection"], // 仅当选中文本时显示
   });
 };
 
 /**
- * 初始化右键菜单，根据设置中的语言 URL。
+ * 初始化右键菜单。
  *
- * @exports
- * @param {string} forvoBaseUrl
+ * @param {string} langCode
  */
-const setupContextMenu = (forvoBaseUrl) => {
-  const langCode = extractLangCode(forvoBaseUrl);
-  createContextMenu(langCode);
+const setupContextMenu = (langCode) => {
+  // 移除已有菜单，避免重复创建
+  chrome.contextMenus.removeAll().then(() => {
+    createMenuItem(
+      CONTEXT_MENU_IDS.SEARCH,
+      getMenuTitle(langCode, CONTEXT_MENU_TYPE.SEARCH)
+    );
+    createMenuItem(
+      CONTEXT_MENU_IDS.WORD_PAGE,
+      getMenuTitle(langCode, CONTEXT_MENU_TYPE.WORD_PAGE)
+    );
+  });
 };
 
 /**
- * 处理右键菜单点击事件，跳转到 Forvo 搜索页面。
+ * 根据菜单项类型、关键词和子域名生成对应的 Forvo 页面 URL。
  *
- * 当用户在网页中选中文本并通过右键菜单触发搜索时，将自动构造对应的 Forvo 搜索链接，
- * 并在新标签页中打开搜索结果页面。
+ * @param {string} menuItemId 菜单项 ID
+ * @param {string} word 用户选中的词
+ * @param {string} subdomainCode Forvo 子域名代码，如 `"zh"`, `"en"`, `"ja"`
+ * @returns {string|null} 返回生成的 Forvo 链接，若 `menuItemId` 无效则返回 null
  *
- * @param {chrome.contextMenus.OnClickData} info 包含上下文信息的对象，
- *   如 选中的文本（`info.selectionText`）、菜单项 ID 等。
- * @param {chrome.tabs.Tab} tab 当前激活的标签页对象，用于确定新标签页的打开位置。
- * @param {string} forvoBaseUrl Forvo 搜索的基础 URL，
- *   如 `"https://zh.forvo.com/search/"`, `"https://forvo.com/search/"` 等。
- * @param {string} [contextMenuId=CONTEXT_MENU_ID] 要处理的菜单项 ID，用于确保只响应本插件创建的菜单事件。
+ * @example
+ * getContextMenuUrl(CONTEXT_MENU_IDS.SEARCH, "hello", "en");
+ * // "https://en.forvo.com/search/hello/"
+ * getContextMenuUrl(CONTEXT_MENU_IDS.WORD_PAGE, "ありがとう", "ja");
+ * // "https://ja.forvo.com/word/ありがとう/"
  */
-const handleContextMenuClick = (
-  info,
-  tab,
-  forvoBaseUrl,
-  contextMenuId = CONTEXT_MENU_ID
-) => {
-  if (info.menuItemId !== contextMenuId) return;
+const getContextMenuUrl = (menuItemId, word, subdomainCode) => {
+  const base = getForvoBaseUrlBySubdomain(subdomainCode);
+  switch (menuItemId) {
+    case CONTEXT_MENU_IDS.SEARCH:
+      return `${base}/search/${word}/`;
+    case CONTEXT_MENU_IDS.WORD_PAGE:
+      return `${base}/word/${word}/`;
+    default:
+      return null;
+  }
+};
 
-  const selectedText = info.selectionText?.trim(); // 获取用户选中的文本，并去除首尾空白
-  if (!selectedText) return; // 若为空，不处理
+/**
+ * 处理右键菜单点击事件。
+ *
+ * @param {chrome.contextMenus.OnClickData} info 包含上下文信息的对象
+ * @param {chrome.tabs.Tab} tab 当前激活的标签页对象
+ * @param {string} subdomainCode
+ */
+const handleContextMenuClick = (info, tab, subdomainCode) => {
+  const { menuItemId, selectionText } = info;
+  if (typeof selectionText !== "string" || !selectionText.trim()) return;
 
-  const searchUrl = `${forvoBaseUrl}${encodeURIComponent(selectedText)}`; // 构造完整搜索 URL
+  const encoded = encodeURIComponent(selectionText.trim());
+  const url = getContextMenuUrl(menuItemId, encoded, subdomainCode);
+  if (!url) return;
 
   chrome.tabs.create({
-    index: tab.index + 1, // 新标签页紧跟当前标签页
-    url: searchUrl, // 要打开的 Forvo 搜索地址
+    index: tab.index + 1,
+    url,
   });
 };
 
@@ -74,34 +91,42 @@ const handleContextMenuClick = (
  * 注册右键菜单点击监听器。
  *
  * @exports
- * @param {() => string} getBaseUrlFn - 获取当前 base URL 的函数（避免闭包值失效）
+ * @param {() => string} getSubdomainCodeFn - 获取当前 subdomainCode 的函数
  */
-const registerContextMenuClickListener = (getBaseUrlFn) => {
+const registerContextMenuClickListener = (getSubdomainCodeFn) => {
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    handleContextMenuClick(info, tab, getBaseUrlFn());
+    handleContextMenuClick(info, tab, getSubdomainCodeFn());
   });
 };
 
 /**
- * 监听 `chrome.storage` 中的 `forvoBaseUrl` 变化，
- * 并在变化时调用回调函数、更新右键菜单。
+ * 监听 `chrome.storage.local` 中 Forvo 设置项的变化。
  *
- * @exports
- * @param {(newUrl: string) => void} onUrlChange - 当 `forvoBaseUrl` 改变时执行的回调函数
+ * 监听的键：
+ * - {@link STORAGE_KEYS.FORVO_LANG_CODE}（语言代码）
+ * - {@link STORAGE_KEYS.FORVO_SUBDOMAIN_CODE}（子域代码）
+ *
+ * @param {{
+ *   onLangCodeChange?: (newLangCode: string) => void,
+ *   onSubdomainCodeChange?: (newSubdomainCode: string) => void
+ * }} [callbacks={}] 可选的回调函数对象，用于在设置变化时响应。
  */
-const observeForvoUrlChanges = (onUrlChange) => {
-  chrome.storage.onChanged.addListener((changes) => {
-    const newUrl = changes.forvoBaseUrl?.newValue;
-    if (newUrl) {
-      onUrlChange(newUrl);
-      setupContextMenu(newUrl);
+const observeForvoSettingsChanges = (callbacks = {}) => {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "local") return;
 
-      console.log(
-        "语言切换为：",
-        extractLangCode(newUrl),
-        "搜索地址为：",
-        newUrl
-      );
+    const langChange = changes[STORAGE_KEYS.FORVO_LANG_CODE];
+    const subdomainChange = changes[STORAGE_KEYS.FORVO_SUBDOMAIN_CODE];
+
+    if (langChange?.newValue) {
+      const newLangCode = langChange.newValue;
+      setupContextMenu(newLangCode); // 更新右键菜单
+      callbacks.onLangCodeChange?.(newLangCode); // 可选触发回调
+    }
+
+    if (subdomainChange?.newValue) {
+      const newSubdomainCode = subdomainChange.newValue;
+      callbacks.onSubdomainCodeChange?.(newSubdomainCode); // 仅触发可选回调
     }
   });
 };
@@ -109,5 +134,5 @@ const observeForvoUrlChanges = (onUrlChange) => {
 export {
   setupContextMenu,
   registerContextMenuClickListener,
-  observeForvoUrlChanges,
+  observeForvoSettingsChanges,
 };

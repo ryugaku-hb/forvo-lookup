@@ -55,4 +55,35 @@ const LANGUAGES = {
   ],
 };
 
-export { LANGUAGES };
+/**
+ * 获取全部语言
+ *
+ * @returns {Array<{code: string, name: string}>} 包含所有语言对象的数组
+ */
+const getAllLanguages = () => {
+  return [...LANGUAGES.common, ...LANGUAGES.others];
+};
+
+/**
+ * 根据分类获取语言列表
+ *
+ * @param {'common' | 'others'} category 语言分类键
+ * @returns {Array<{code: string, name: string}>} 对应分类的语言列表
+ */
+function getLanguagesByCategory(category) {
+  return LANGUAGES[category] || [];
+}
+
+/**
+ * 根据语言代码获取语言名称
+ *
+ * @param {string} code 语言代码（如 `'en'`, `'ja'`）
+ * @returns {string | null} 返回对应语言名称，若未找到则返回 null
+ */
+function getLanguageNameByCode(code) {
+  const all = getAllLanguages();
+  const lang = all.find((item) => item.code === code);
+  return lang ? lang.name : null;
+}
+
+export { getAllLanguages, getLanguagesByCategory, getLanguageNameByCode };

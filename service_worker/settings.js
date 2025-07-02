@@ -1,27 +1,29 @@
 import {
   DEFAULT_LANG_CODE,
-  getForvoBaseUrl,
-} from "../common/utils.js";
-
-const DEFAULT_FORVO_BASE_URL = getForvoBaseUrl(DEFAULT_LANG_CODE);
+  DEFAULT_SUBDOMAIN_CODE,
+} from "../common/constants/index.js";
+import { STORAGE_KEYS } from "../common/constants/index.js";
 
 /**
- * 获取用户设置的 Forvo 搜索地址。
+ * 获取用户设置。
  *
- * 此函数从 `chrome.storage.local` 中读取用户配置的 `forvoBaseUrl`，
- * 如果未设置该值，则返回一个默认的搜索地址 `DEFAULT_FORVO_BASE_URL`。
+ * 此函数从 `chrome.storage.local` 中读取用户设置的 `forvoLangCode` 和 `forvoSubdomainCode`
  *
  * @async
- * @returns {Promise<{ forvoBaseUrl: string }>} 一个 Promise，解析后返回包含语言搜索 URL 的对象。
+ * @returns {Promise<{ langCode: string, subdomainCode: string }>}
  *
  * @example
  * const settings = await loadUserSettings();
- * settings.forvoBaseUrl // "https://ja.forvo.com/search/"
+ * settings.langCode // "ja"
  */
 const loadUserSettings = async () => {
-  const result = await chrome.storage.local.get(["forvoBaseUrl"]);
+  const result = await chrome.storage.local.get([
+    STORAGE_KEYS.FORVO_LANG_CODE,
+    STORAGE_KEYS.FORVO_SUBDOMAIN_CODE,
+  ]);
   return {
-    forvoBaseUrl: result.forvoBaseUrl || DEFAULT_FORVO_BASE_URL,
+    langCode: result.forvoLangCode || DEFAULT_LANG_CODE,
+    subdomainCode: result.forvoSubdomainCode || DEFAULT_SUBDOMAIN_CODE,
   };
 };
 
