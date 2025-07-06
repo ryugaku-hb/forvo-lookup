@@ -1,6 +1,12 @@
-import { DEFAULT_LANG_CODE } from "../constants/index.js";
+import {
+  DEFAULT_LANG_CODE,
+  SupportedLangCode,
+  ContextMenuType,
+} from "@/common/constants";
 
-const CONTEXT_MENU_TITLES = {
+export type ContextMenuTitles = Record<ContextMenuType, string>;
+
+const CONTEXT_MENU_TITLES: Record<SupportedLangCode, ContextMenuTitles> = {
   de: {
     SEARCH: 'Suche "%s" mit Forvo',
     WORD_PAGE: '"%s" auf Forvo öffnen',
@@ -174,19 +180,20 @@ const CONTEXT_MENU_TITLES = {
     SEARCH: '用 Forvo 搜尋 "%s"',
     WORD_PAGE: "打開 Forvo 上「%s」嘅頁面",
   },
-};
+} as const;
 
 /**
- * 获取指定语言和类型的右键菜单标题文本。
+ *  获取指定语言和类型的右键菜单标题文本。
  *
- * @param {string} langCode 语言代码（如 `'en'`, `'zh'`）
- * @param {string} type 菜单类型，为 `'SEARCH'` 或 `'WORD_PAGE'`
- * @returns {string} 返回对应语言和类型的菜单标题文本，如果没有对应的类型则返回空字符串。
+ * @param {SupportedLangCode} langCode 语言代码
+ * @param {ContextMenuType} type 菜单类型
+ * @returns {string} 返回对应语言和类型的菜单标题文本，如果没有对应的类型则返回空字符串
  */
-const getMenuTitle = (langCode, type) => {
+export const getMenuTitle = (
+  langCode: SupportedLangCode,
+  type: ContextMenuType
+): string => {
   const titles =
     CONTEXT_MENU_TITLES[langCode] || CONTEXT_MENU_TITLES[DEFAULT_LANG_CODE];
   return titles[type] || "";
 };
-
-export { getMenuTitle };

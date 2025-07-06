@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* 基本选项 */
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["ES2020", "DOM"],
+
+    /* 路径别名 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    /* 输出目录 */
+    "outDir": "dist",
+
+    /* 类型检查 */
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    /* 让 TS 知道这是模块化项目 */
+    "isolatedModules": true,
+
+    "moduleDetection": "force"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

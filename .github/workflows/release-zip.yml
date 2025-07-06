@@ -10,31 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code · 拉取仓库代码
+      - name: Checkout code - 拉取仓库代码
         # https://github.com/actions/checkout
         uses: actions/checkout@v4
 
-      - name: Install zip · 安装 zip 工具
+      - name: Setup Node.js - 安装 Node 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies - 安装依赖
+        # 如果你有 package-lock.json 就用 npm ci，没有就改为 npm install
+        run: npm ci
+
+      - name: Build project - 构建项目
+        run: npm run build
+
+      - name: Install zip - 安装 zip 工具
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Zip extension folder · 打包扩展目录为 zip 文件
+      - name: Zip dist folder - 打包 dist 为 zip 文件
         run: |
           VERSION=${{ github.ref_name }} 
           ZIP_NAME="forvo-lookup-${VERSION}.zip"
           echo "Creating zip: ${ZIP_NAME} (version: ${VERSION})"
-          zip -r "$ZIP_NAME" . \
-              -x ".github/*" \
-                 ".git/*" \
-                 ".gitignore" \
-                 "*.zip"  \
-                 "*.md" \
-                 "LICENSE" \
-                 "package.json" \
-                 "package-lock.json" \
-                 "*.config.mjs"
+          cd dist
+          zip -r "../$ZIP_NAME" .
 
-      - name: Upload ZIP to GitHub Release · 上传 zip 到 GitHub Release 页面
+      - name: Upload ZIP to GitHub Release - 上传 zip 到 GitHub Release 页面
         # https://github.com/softprops/action-gh-release
         uses: softprops/action-gh-release@v2
         with:
           files: forvo-lookup-${{ github.ref_name }}.zip
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
