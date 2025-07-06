@@ -1,3 +1,12 @@
+import { SupportedLangCode } from "@/common/constants";
+
+export interface LanguageItem {
+  code: SupportedLangCode;
+  name: string;
+}
+
+export type LanguageCategory = "common" | "others";
+
 /**
  * 语言列表 `LANGUAGES`
  *
@@ -5,7 +14,7 @@
  * 这里定义了支持的语言集合，每个语言有 `code` 和 `name`，
  * 方便在界面上渲染语言选择菜单。
  */
-const LANGUAGES = {
+export const LANGUAGES: Record<LanguageCategory, LanguageItem[]> = {
   common: [
     { code: "de", name: "Deutsch" },
     { code: "en", name: "English" },
@@ -53,26 +62,28 @@ const LANGUAGES = {
     { code: "vi", name: "Tiếng Việt" },
     { code: "yue", name: "粵文" },
   ],
-};
+} as const;
 
 /**
  * 获取全部语言
  *
- * @returns {Array<{code: string, name: string}>} 包含所有语言对象的数组
+ * @returns {LanguageItem[]} 包含所有语言对象的数组
  */
-const getAllLanguages = () => {
+export const getAllLanguages = (): LanguageItem[] => {
   return [...LANGUAGES.common, ...LANGUAGES.others];
 };
 
 /**
  * 根据分类获取语言列表
  *
- * @param {'common' | 'others'} category 语言分类键
- * @returns {Array<{code: string, name: string}>} 对应分类的语言列表
+ * @param {LanguageCategory} category 语言分类键
+ * @returns {LanguageItem[]} 对应分类的语言列表
  */
-function getLanguagesByCategory(category) {
+export const getLanguagesByCategory = (
+  category: LanguageCategory
+): LanguageItem[] => {
   return LANGUAGES[category] || [];
-}
+};
 
 /**
  * 根据语言代码获取语言名称
@@ -80,10 +91,10 @@ function getLanguagesByCategory(category) {
  * @param {string} code 语言代码（如 `'en'`, `'ja'`）
  * @returns {string | null} 返回对应语言名称，若未找到则返回 null
  */
-function getLanguageNameByCode(code) {
+export const getLanguageNameByCode = (
+  code: SupportedLangCode
+): string | null => {
   const all = getAllLanguages();
   const lang = all.find((item) => item.code === code);
   return lang ? lang.name : null;
-}
-
-export { getAllLanguages, getLanguagesByCategory, getLanguageNameByCode };
+};

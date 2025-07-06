@@ -1,4 +1,21 @@
-import { DEFAULT_LANG_CODE } from "../constants/index.js";
+import { DEFAULT_LANG_CODE, SupportedLangCode } from "@/common/constants";
+
+/**
+ * 本地化的设置页面 UI 文本映射。
+ *
+ * @property {string} settingsTitleText 设置页面的标题
+ * @property {string} langSelectLabelText 语言选择标签的文本
+ * @property {string} subdomainSelectLabelText 子域名选择标签的文本
+ * @property {string} saveButtonText 保存按钮的文本
+ * @property {string} saveSuccessMessage 保存成功时的提示消息
+ */
+export interface LocalizedUIText {
+  settingsTitleText: string;
+  langSelectLabelText: string;
+  subdomainSelectLabelText: string;
+  saveButtonText: string;
+  saveSuccessMessage: string;
+}
 
 /**
  * 本地化字符串 `i18n`
@@ -6,7 +23,7 @@ import { DEFAULT_LANG_CODE } from "../constants/index.js";
  * 用于设置页面的本地化文案。
  * 针对每种语言，定义一组本地化字符串（如按钮文本、标签、提示信息）。
  */
-const i18n = {
+const i18n: Record<SupportedLangCode, LocalizedUIText> = {
   de: {
     settingsTitleText: "Forvo Lookup Einstellungen",
     langSelectLabelText: "Forvo Seiten-Sprache:",
@@ -308,18 +325,7 @@ const i18n = {
     saveButtonText: "保存",
     saveSuccessMessage: "設定已保存！",
   },
-};
-
-/**
- * @typedef {object} LocalizedUIText
- * 本地化的设置页面 UI 文本映射。
- *
- * @property {string} settingsTitleText 设置页面的标题
- * @property {string} langSelectLabelText 语言选择标签的文本
- * @property {string} subdomainSelectLabelText 子域名选择标签的文本
- * @property {string} saveButtonText 保存按钮的文本
- * @property {string} saveSuccessMessage 保存成功时的提示消息
- */
+} as const;
 
 /**
  * 根据语言代码返回对应的本地化 UI 文本。
@@ -335,8 +341,8 @@ const i18n = {
  * console.log(uiTextMap.saveButtonText); // 保存
  * console.log(uiTextMap.saveSuccessMessage); // 設定が保存されました！
  */
-const getUILocalization = (langCode) => {
+export const getUILocalization = (
+  langCode: SupportedLangCode
+): LocalizedUIText => {
   return i18n[langCode] || i18n[DEFAULT_LANG_CODE];
 };
-
-export { getUILocalization };

@@ -1,18 +1,17 @@
-import { loadUserSettings } from "./settings.js";
+import { SupportedLangCode } from "@/common/constants";
+import { loadUserSettings } from "./settings";
 import {
   setupContextMenu,
   registerContextMenuClickListener,
   observeForvoSettingsChanges,
-} from "./contextMenu.js";
+} from "./contextMenu";
 
-let currentSubdomainCode;
+let currentSubdomainCode: SupportedLangCode;
 
 /**
- * 执行初始化流程
- *
- * @async
+ * 执行初始化流程。
  */
-const initializeExtension = async () => {
+const initializeExtension = async (): Promise<void> => {
   const { langCode, subdomainCode } = await loadUserSettings();
   currentSubdomainCode = subdomainCode;
 
