@@ -1,29 +1,21 @@
 import { DEFAULT_LANG_CODE, SupportedLangCode } from "@/common/constants";
 
-/**
- * 本地化的设置页面 UI 文本映射。
- *
- * @property {string} settingsTitleText 设置页面的标题
- * @property {string} langSelectLabelText 语言选择标签的文本
- * @property {string} subdomainSelectLabelText 子域名选择标签的文本
- * @property {string} saveButtonText 保存按钮的文本
- * @property {string} saveSuccessMessage 保存成功时的提示消息
- */
-export interface LocalizedUIText {
+/** Options 页的本地化 UI 文案结构 */
+export interface OptionsPageUIStrings {
+  /** 设置页面的标题 */
   settingsTitleText: string;
+  /** 语言选择标签的文本 */
   langSelectLabelText: string;
+  /** 子域名选择标签的文本 */
   subdomainSelectLabelText: string;
+  /** 保存按钮的文本 */
   saveButtonText: string;
+  /** 保存成功时的提示消息 */
   saveSuccessMessage: string;
 }
 
-/**
- * 本地化字符串 `i18n`
- *
- * 用于设置页面的本地化文案。
- * 针对每种语言，定义一组本地化字符串（如按钮文本、标签、提示信息）。
- */
-const i18n: Record<SupportedLangCode, LocalizedUIText> = {
+/** Options 页的本地化文案映射表 */
+const OPTIONS_PAGE_UI_MAP: Record<SupportedLangCode, OptionsPageUIStrings> = {
   de: {
     settingsTitleText: "Forvo Lookup Einstellungen",
     langSelectLabelText: "Forvo Seiten-Sprache:",
@@ -325,24 +317,23 @@ const i18n: Record<SupportedLangCode, LocalizedUIText> = {
     saveButtonText: "保存",
     saveSuccessMessage: "設定已保存！",
   },
-} as const;
+};
 
 /**
- * 根据语言代码返回对应的本地化 UI 文本。
- *
- * @param {string} langCode 语言代码，例如 `"en"`, `"ja"`, `"zh"`
- * @returns {LocalizedUIText} 包含设置页面各项文本的对象
- *
+ * 根据语言代码解析 Options 页本地化文案
+ * @param localeCode 语言代码
  * @example
- * const uiTextMap = getUILocalization("ja");
- * console.log(uiTextMap.settingsTitleText); // Forvo Lookup 設定
- * console.log(uiTextMap.langSelectLabelText); // Forvo ページの言語：
- * console.log(uiTextMap.subdomainSelectLabelText); // Forvo 地域サイト：
- * console.log(uiTextMap.saveButtonText); // 保存
- * console.log(uiTextMap.saveSuccessMessage); // 設定が保存されました！
+ * const uiStrings = resolveOptionsPageUIStrings("ja");
+ * console.log(uiStrings.pageTitle);          // Forvo Lookup 設定
+ * console.log(uiStrings.langSelectLabel);    // Forvo ページの言語：
+ * console.log(uiStrings.subdomainSelectLabel);// Forvo 言語サイト：
+ * console.log(uiStrings.saveButtonLabel);    // 保存
+ * console.log(uiStrings.saveSuccessMessage); // 設定が保存されました！
  */
-export const getUILocalization = (
-  langCode: SupportedLangCode
-): LocalizedUIText => {
-  return i18n[langCode] || i18n[DEFAULT_LANG_CODE];
-};
+export function resolveOptionsPageUIStrings(
+  localeCode: SupportedLangCode
+): OptionsPageUIStrings {
+  return (
+    OPTIONS_PAGE_UI_MAP[localeCode] || OPTIONS_PAGE_UI_MAP[DEFAULT_LANG_CODE]
+  );
+}

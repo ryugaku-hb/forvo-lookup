@@ -1,23 +1,26 @@
 import { SupportedLangCode } from "@/common/constants";
-import { initSelect, saveSetting } from "./settings";
+import { initOptionsPageSelects, saveOptionsPageSettings } from "./settings";
 
-// 等待页面 DOM 加载完成后执行初始化逻辑
-window.addEventListener("DOMContentLoaded", () => {
-  const langSelectEl = document.getElementById(
-    "langSelect"
-  ) as HTMLSelectElement;
-  const subdomainSelectEl = document.getElementById(
-    "subdomainSelect"
-  ) as HTMLSelectElement;
-  const saveButtonEl = document.getElementById(
-    "saveButton"
-  ) as HTMLButtonElement;
+function initOptionsPage(): void {
+  const langSelectEl = document.querySelector<HTMLSelectElement>("#langSelect");
+  const subdomainSelectEl =
+    document.querySelector<HTMLSelectElement>("#subdomainSelect");
+  const saveButtonEl = document.querySelector<HTMLButtonElement>("#saveButton");
 
-  initSelect(langSelectEl, subdomainSelectEl);
+  if (!langSelectEl || !subdomainSelectEl || !saveButtonEl) {
+    console.error("[Options] Required elements not found in DOM.");
+    return;
+  }
+
+  // 初始化下拉框
+  initOptionsPageSelects(langSelectEl, subdomainSelectEl);
 
   saveButtonEl.addEventListener("click", () => {
     const langCode = langSelectEl.value as SupportedLangCode;
     const subdomaiCode = subdomainSelectEl.value as SupportedLangCode;
-    saveSetting(langCode, subdomaiCode);
+    saveOptionsPageSettings(langCode, subdomaiCode);
   });
-});
+}
+
+// 等待页面 DOM 加载完成后执行初始化逻辑
+window.addEventListener("DOMContentLoaded", initOptionsPage);

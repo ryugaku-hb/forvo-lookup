@@ -4,14 +4,14 @@ import {
   setupContextMenu,
   registerContextMenuClickListener,
   observeForvoSettingsChanges,
-} from "./contextMenu";
+} from "./context-menu";
 
 let currentSubdomainCode: SupportedLangCode;
 
 /**
- * 执行初始化流程。
+ * 执行初始化流程
  */
-const initializeExtension = async (): Promise<void> => {
+async function initializeExtension(): Promise<void> {
   const { langCode, subdomainCode } = await loadUserSettings();
   currentSubdomainCode = subdomainCode;
 
@@ -22,7 +22,7 @@ const initializeExtension = async (): Promise<void> => {
       currentSubdomainCode = newSubdomainCode;
     },
   });
-};
+}
 
 // 启动插件初始化
 initializeExtension();

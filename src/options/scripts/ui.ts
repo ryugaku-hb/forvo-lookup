@@ -1,78 +1,93 @@
 import { DEFAULT_LANG_CODE, SupportedLangCode } from "@/common/constants";
 import {
-  getAllLanguages,
-  getLanguagesByCategory,
-  getUILocalization,
-  LocalizedUIText,
+  getSupportedLanguages,
+  getLanguagesInGroup,
+  resolveOptionsPageUIStrings,
+  OptionsPageUIStrings,
   LanguageItem,
-} from "@/common/locales";
+} from "@/common/localization";
 import { getForvoBaseUrlBySubdomain } from "@/common/utils";
 
-export const renderLanguageSelect = (langSelectEl: HTMLSelectElement): void => {
-  langSelectEl.innerHTML = ""; // 清空内容
+/**
+ * 创建 `<optgroup>` 选项分组
+ * @param label 分组选项的标题
+ * @param options 语言选项列表
+ */
+function createOptionsGroup(
+  label: string,
+  options: LanguageItem[]
+): HTMLOptGroupElement {
+  const group = document.createElement("optgroup");
+  group.label = label;
 
-  /**
-   * 创建 `<optgroup>` 容器
-   *
-   * @param {string} label 分组选项的标题
-   * @param {LanguageItem[]} options
-   * @returns {HTMLOptGroupElement}
-   */
-  const createOptionsGroup = (
-    label: string,
-    options: LanguageItem[]
-  ): HTMLOptGroupElement => {
-    const group = document.createElement("optgroup");
-    group.label = label;
+  options.forEach(({ code, name }) => {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = name;
+    group.appendChild(option);
+  });
 
-    options.forEach(({ code, name }) => {
-      const option = document.createElement("option");
-      option.value = code;
-      option.textContent = name;
-      group.appendChild(option);
-    });
-    return group;
-  };
+  return group;
+}
 
+/**
+ * 渲染语言选择下拉框 `<select>` 选项
+ * @param langSelectEl
+ */
+export function renderLanguageSelectOptions(
+  langSelectEl: HTMLSelectElement
+): void {
+  // 先清空现有内容，避免重复渲染
+  langSelectEl.innerHTML = "";
+
+  // 渲染常用语言 & 其他语言分组
   langSelectEl.appendChild(
-    createOptionsGroup("🌍 常用语言", getLanguagesByCategory("common"))
+    createOptionsGroup("🌍 常用语言", getLanguagesInGroup("common"))
   );
   langSelectEl.appendChild(
-    createOptionsGroup("🌐 其他语言", getLanguagesByCategory("others"))
+    createOptionsGroup("🌐 其他语言", getLanguagesInGroup("others"))
   );
-};
+}
 
-export const renderSubdomainSelect = (
+/**
+ *  渲染子域名选择下拉框 `<select>` 选项
+ * @param subdomainSelectEl
+ */
+export function renderSubdomainSelectOptions(
   subdomainSelectEl: HTMLSelectElement
-): void => {
-  subdomainSelectEl.innerHTML = ""; // 清空已有选项
+): void {
+  // 清空已有选项
+  subdomainSelectEl.innerHTML = "";
 
-  getAllLanguages().forEach(({ code, name }) => {
+  getSupportedLanguages().forEach(({ code, name }) => {
     const url = getForvoBaseUrlBySubdomain(code);
     const option = document.createElement("option");
     option.value = code;
     option.textContent = `${code} (${name}) - ${url}`;
     subdomainSelectEl.appendChild(option);
   });
-};
+}
 
 /**
- * 根据 `langCode` 更新所有带有 `data-i18n` 的元素文本。
+ * 根据 `langCode` 更新 Options 页面所有带有 `data-i18n` 的元素文本
  */
-export const updateTextByLangCode = (langCode: SupportedLangCode): void => {
-  const uiTextMap =
-    getUILocalization(langCode) || getUILocalization(DEFAULT_LANG_CODE);
+export function updateOptionsPageTexts(langCode: SupportedLangCode): void {
+  // 获取对应语言的本地化文本
+  const uiStrings =
+    resolveOptionsPageUIStrings(langCode) ||
+    resolveOptionsPageUIStrings(DEFAULT_LANG_CODE);
 
-  console.log(uiTextMap);
+  document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n") as
+      | keyof OptionsPageUIStrings
+      | null;
 
-  type I18nKey = keyof LocalizedUIText;
-
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const key = el.getAttribute("data-i18n") as I18nKey | null;
-    if (key && uiTextMap[key]) {
-      el.textContent = uiTextMap[key];
+    if (key && uiStrings[key]) {
+      el.textContent = uiStrings[key];
     } else {
-      console.warn(`Missing i18n key: ${key}`);
+      console.warn(
+        `[i18n] Missing translation for key "${key}" in lang "${langCode}"`
+      );
     }
   });
-};
+}

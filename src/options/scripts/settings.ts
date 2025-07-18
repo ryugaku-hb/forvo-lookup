@@ -4,60 +4,67 @@ import {
   STORAGE_KEYS,
   SupportedLangCode,
 } from "@/common/constants";
-import { getUILocalization } from "@/common/locales";
+import { resolveOptionsPageUIStrings } from "@/common/localization";
 import {
-  renderLanguageSelect,
-  renderSubdomainSelect,
-  updateTextByLangCode,
+  renderLanguageSelectOptions,
+  renderSubdomainSelectOptions,
+  updateOptionsPageTexts,
 } from "./ui";
 
 /**
- * 会从 `chrome.storage.local` 中读取数据，然后：
- * 渲染相应选择框，设置选择框当前选中值，更新页面的多语言文本内容
- *
- * @param {HTMLSelectElement} langSelectEl
- * @param {HTMLSelectElement} subdomainSelectEl
- * @returns {Promise<void>} 表示初始化完成
+ * 初始化 Options 页面下拉框
+ * @param langSelectEl
+ * @param subdomainSelectEl
  */
-export const initSelect = async (
+export async function initOptionsPageSelects(
   langSelectEl: HTMLSelectElement,
   subdomainSelectEl: HTMLSelectElement
-): Promise<void> => {
+): Promise<void> {
   const result = await chrome.storage.local.get([
     STORAGE_KEYS.FORVO_LANG_CODE,
     STORAGE_KEYS.FORVO_SUBDOMAIN_CODE,
   ]);
 
-  const langCode = result[STORAGE_KEYS.FORVO_LANG_CODE] || DEFAULT_LANG_CODE;
+  const langCode =
+    typeof result[STORAGE_KEYS.FORVO_LANG_CODE] === "string"
+      ? result[STORAGE_KEYS.FORVO_LANG_CODE]
+      : DEFAULT_LANG_CODE;
   const subdomainCode =
-    result[STORAGE_KEYS.FORVO_SUBDOMAIN_CODE] || DEFAULT_SUBDOMAIN_CODE;
+    typeof result[STORAGE_KEYS.FORVO_SUBDOMAIN_CODE] === "string"
+      ? result[STORAGE_KEYS.FORVO_SUBDOMAIN_CODE]
+      : DEFAULT_SUBDOMAIN_CODE;
 
-  renderLanguageSelect(langSelectEl);
+  // 渲染语言下拉框
+  renderLanguageSelectOptions(langSelectEl);
   langSelectEl.value = langCode;
 
-  renderSubdomainSelect(subdomainSelectEl);
+  // 渲染子域名下拉框
+  renderSubdomainSelectOptions(subdomainSelectEl);
   subdomainSelectEl.value = subdomainCode;
 
-  updateTextByLangCode(langCode);
-};
+  // 更新页面文案
+  updateOptionsPageTexts(langCode);
+}
 
 /**
- * 保存用户选择的语言设置到本地存储，并更新页面文本内容。
- * 成功后会显示本地化提示信息。
- *
- * @param {SupportedLangCode} langCode 用户选择的语言代码，如 "zh"
- * @param {SupportedLangCode} subdomainCode 用户选择的地区代码，如 "zh"
+ * 保存 Options 页面用户设置
+ * @param langCode 用户选择的语言代码
+ * @param subdomainCode 用户选择的地区代码
  */
-export const saveSetting = (langCode: SupportedLangCode, subdomainCode: SupportedLangCode): void => {
-  chrome.storage.local
-    .set({
-      [STORAGE_KEYS.FORVO_LANG_CODE]: langCode,
-      [STORAGE_KEYS.FORVO_SUBDOMAIN_CODE]: subdomainCode,
-    })
-    .then(() => {
-      updateTextByLangCode(langCode);
-
-      const { saveSuccessMessage } = getUILocalization(langCode);
-      alert(saveSuccessMessage || "Settings saved successfully.");
-    });
-};
+export async function saveOptionsPageSettings(
+  langCode: SupportedLangCode,
+  subdomainCode: SupportedLangCode
+): Promise<void> {
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.FORVO_LANG_CODE]: langCode,
+    [STORAGE_KEYS.FORVO_SUBDOMAIN_CODE]: subdomainCode,
+  });
+  
+  // 保存后立即更新页面文本
+  updateOptionsPageTexts(langCode);
+  // 获取本地化提示信息
+  const { saveSuccessMessage } =
+    resolveOptionsPageUIStrings(langCode) ??
+    resolveOptionsPageUIStrings(DEFAULT_LANG_CODE);
+  alert(saveSuccessMessage ?? "Settings saved successfully.");
+}
